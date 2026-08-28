@@ -19,6 +19,7 @@ const requiredPages = [
   "app/account/page.tsx",
   "app/admin/page.tsx",
   "app/api/health/route.ts",
+  "app/api/admin/overview/route.ts",
   "app/api/newsletter/route.ts",
   "app/api/orders/route.ts",
   "app/api/routines/route.ts",
@@ -65,6 +66,21 @@ test("ships keyboard focus and reduced-motion fallbacks", async () => {
   assert.match(css, /:focus-visible/i, "Missing visible keyboard focus treatment");
   assert.match(css, /prefers-reduced-motion\s*:\s*reduce/i, "Missing reduced-motion fallback");
   assert.match(css, /\.mobile-menu__nav\s*\{/i, "Mobile navigation is present in markup but has no component styling");
+});
+
+test("ships the complete hi-fi commerce path", async () => {
+  const [checkout, admin, product] = await Promise.all([
+    read("app/cart/page.tsx"),
+    read("app/admin/page.tsx"),
+    read("app/product/[slug]/page.tsx"),
+  ]);
+  assert.match(checkout, /checkout-steps/);
+  assert.match(checkout, /cash_on_delivery/);
+  assert.match(checkout, /demo_card/);
+  assert.match(checkout, /POST|fetch\(["']\/api\/orders/);
+  assert.match(admin, /\/api\/admin\/overview/);
+  assert.match(admin, /OrderTable/);
+  assert.match(product, /ReviewPanel/);
 });
 
 test("does not leave placeholder anchors in route source", async () => {

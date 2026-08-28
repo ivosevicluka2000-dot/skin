@@ -113,7 +113,7 @@ test("health API has a machine-readable degraded mode without D1", async () => {
   assert.notEqual(body, null);
 });
 
-for (const path of ["/api/orders", "/api/routines", "/api/reviews"]) {
+for (const path of ["/api/orders", "/api/routines", "/api/reviews", "/api/admin/overview"]) {
   test(`${path} returns a machine-readable read response`, async () => {
     worker ??= await loadBuiltWorker();
     const response = await fetchFromWorker(worker, path, {

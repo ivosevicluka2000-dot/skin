@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProductArt } from "@/components/product-art";
 import { ProductDetailActions } from "@/components/product-detail-actions";
+import { ProductCard } from "@/components/product-card";
+import { ReviewPanel } from "@/components/review-panel";
 import { brandById, concernById, formatRsd, ingredientById, products } from "@/lib/data/catalog";
 import { categoryLabels, productColor, productShape, routineStepLabels } from "@/lib/ui";
 import type { Product } from "@/lib/data/types";
@@ -21,6 +23,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   if (!found) notFound();
   const product: Product = found;
   const brand = brandById[product.brandId];
+  const related = products.filter((candidate) => candidate.id !== product.id && candidate.concernIds.some((id) => product.concernIds.includes(id))).slice(0, 4);
   return (
     <div className="detail-page">
       <nav className="breadcrumbs" aria-label="Putanja"><Link href="/">Početna</Link><span>/</span><Link href="/shop">Prodavnica</Link><span>/</span><span>{product.name}</span></nav>
@@ -49,6 +52,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
       </article>
+      <section className="product-proof-strip" aria-label="EQUA standard"><div><strong>100%</strong><span>jasna uputstva</span></div><div><strong>24h</strong><span>odgovor savetnika</span></div><div><strong>1–3</strong><span>dana do isporuke</span></div><div><strong>0</strong><span>nasumičnih koraka</span></div></section>
+      <ReviewPanel productId={product.id} rating={product.rating.average} count={product.rating.count} />
+      <section className="related-products"><div className="section-heading-row"><div><p className="eyebrow">Dovrši ritual</p><h2 className="section-title">Dobro radi zajedno.</h2></div><Link className="text-link" href="/shop">Ceo katalog</Link></div><div className="product-grid">{related.map((candidate) => <ProductCard product={candidate} key={candidate.id} />)}</div></section>
     </div>
   );
 }

@@ -188,6 +188,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
             <Link href="/shop">Prodavnica</Link>
             <Link href="/journal">Vodiči</Link>
             <Link href="/ingredients">Sastojci</Link>
+            <Link href="/admin">Admin demo</Link>
           </div>
           <div>
             <strong>Pomoć</strong>
