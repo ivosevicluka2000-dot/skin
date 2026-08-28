@@ -4,8 +4,8 @@ import Link from "next/link";
 import { Heart, Plus, ShoppingBag } from "lucide-react";
 import type { Product } from "@/lib/data/types";
 import { brandById, formatRsd } from "@/lib/data/catalog";
-import { productColor, productShape, toCommerceProduct } from "@/lib/ui";
-import { ProductArt } from "./product-art";
+import { productColor, toCommerceProduct } from "@/lib/ui";
+import { ProductPhoto } from "./product-photo";
 import { useCommerce } from "./commerce-store";
 
 export function ProductCard({ product }: { product: Product }) {
@@ -18,11 +18,7 @@ export function ProductCard({ product }: { product: Product }) {
     <article className="product-card" style={{ "--card-color": productColor(product) } as React.CSSProperties}>
       <div className="product-card__visual">
         <Link href={`/product/${product.slug}`} aria-label={`Otvori ${product.name}`}>
-          <ProductArt
-            color={productColor(product)}
-            label={brandById[product.brandId].name}
-            shape={productShape(product)}
-          />
+          <ProductPhoto product={product} />
         </Link>
         <div className="product-card__badges">
           {product.bestseller && <span>Bestseller</span>}

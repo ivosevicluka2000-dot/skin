@@ -1,12 +1,13 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element -- Vinext serves these checked-in, pre-compressed campaign assets directly. */
+
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { ArrowDownRight, ArrowRight, Check, MoveRight, Sparkles } from "lucide-react";
 import { motion } from "motion/react";
 import type { Article, Concern, Product } from "@/lib/data/types";
 import { ProductCard } from "./product-card";
-import { ProductArt } from "./product-art";
 
 type Props = {
   concerns: readonly Concern[];
@@ -52,11 +53,10 @@ export function HomeExperience({ concerns, products, articles }: Props) {
           </div>
         </motion.div>
         <motion.div className="hero-visual" initial={{ opacity: 0, scale: .97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: .8, delay: .12 }}>
-          <div className="hero-visual__wash" />
-          <div className="hero-visual__ring" />
-          <ProductArt color="#d8ef7c" label="EQUA" shape="dropper" />
-          <span className="hero-visual__tag hero-visual__tag--one">Formula 01 · niacinamid + pantenol</span>
-          <span className="hero-visual__tag hero-visual__tag--two">Izabrano za tvoju barijeru</span>
+          <img className="hero-visual__photo" src="/images/campaign/equa-ritual-hero.jpg" alt="EQUA serum, krema i SPF u jutarnjem skincare ritualu" width={1800} height={1126} />
+          <div className="hero-visual__shade" />
+          <span className="hero-visual__tag hero-visual__tag--one">EQUA ritual · formula pre trenda</span>
+          <span className="hero-visual__tag hero-visual__tag--two">Kurirano za tvoju kožu</span>
           <div className="hero-visual__counter"><strong>01</strong><span>počni od kože, ne trenda</span></div>
         </motion.div>
       </section>
@@ -86,7 +86,8 @@ export function HomeExperience({ concerns, products, articles }: Props) {
 
       <section className="bridge-section">
         <motion.div className="bridge-visual" initial={{ rotate: -1.5, opacity: 0 }} whileInView={{ rotate: 0, opacity: 1 }} viewport={{ once: true }}>
-          <span className="bridge-visual__texture" /><ProductArt color="#beb2dc" label="Terra Calm" shape="jar" />
+          <img className="bridge-visual__photo" src="/images/products/cream.jpg" alt="Minimalistička krema kao treći korak EQUA rutine" width={1200} height={1200} loading="lazy" decoding="async" />
+          <span className="bridge-visual__shade" />
           <div className="bridge-visual__note"><span>skin logic™</span><span>03 / 04</span></div>
         </motion.div>
         <div className="bridge-copy">

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ProductArt } from "@/components/product-art";
 import { ProductDetailActions } from "@/components/product-detail-actions";
 import { ProductCard } from "@/components/product-card";
+import { ProductPhoto } from "@/components/product-photo";
 import { ReviewPanel } from "@/components/review-panel";
 import { brandById, concernById, formatRsd, ingredientById, products } from "@/lib/data/catalog";
-import { categoryLabels, productColor, productShape, routineStepLabels } from "@/lib/ui";
+import { categoryLabels, productColor, routineStepLabels } from "@/lib/ui";
 import type { Product } from "@/lib/data/types";
 
 export function generateStaticParams() { return products.map((product) => ({ slug: product.slug })); }
@@ -29,7 +29,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       <nav className="breadcrumbs" aria-label="Putanja"><Link href="/">Početna</Link><span>/</span><Link href="/shop">Prodavnica</Link><span>/</span><span>{product.name}</span></nav>
       <article className="product-detail">
         <div className="product-detail__visual" style={{ "--detail-color": productColor(product) } as React.CSSProperties}>
-          <ProductArt color={productColor(product)} label={brand.name} shape={productShape(product)} />
+          <ProductPhoto product={product} eager />
+          <span className="product-detail__image-note">EQUA selection · {categoryLabels[product.category]}</span>
         </div>
         <div className="product-detail__content">
           <span className="product-detail__brand">{brand.name} · {categoryLabels[product.category]}</span>
