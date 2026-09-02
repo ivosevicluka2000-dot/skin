@@ -75,6 +75,19 @@ test("ships keyboard focus and reduced-motion fallbacks", async () => {
   assert.match(css, /\.mobile-menu__nav\s*\{/i, "Mobile navigation is present in markup but has no component styling");
 });
 
+test("ships mobile navigation reset, visual ingredient cards, and a two-column footer", async () => {
+  const [shell, ingredients, css] = await Promise.all([
+    read("components/site-shell.tsx"),
+    read("app/ingredients/page.tsx"),
+    read("app/globals.css"),
+  ]);
+  assert.match(shell, /scrollRestoration\s*=\s*["']manual["']/);
+  assert.match(shell, /window\.scrollTo\(0,\s*0\)/);
+  assert.match(ingredients, /ingredient\.image/);
+  assert.match(ingredients, /ingredient-card__visual/);
+  assert.match(css, /@media\s*\(max-width:480px\)[\s\S]*?\.site-footer__grid\s*\{\s*grid-template-columns:repeat\(2/i);
+});
+
 test("ships the complete hi-fi commerce path", async () => {
   const [checkout, admin, product] = await Promise.all([
     read("app/cart/page.tsx"),

@@ -3,6 +3,8 @@ import Link from "next/link";
 import { concerns, ingredients } from "@/lib/data/catalog";
 import type { IngredientId } from "@/lib/data/types";
 
+/* eslint-disable @next/next/no-img-element -- generated EQUA ingredient still lifes are checked-in, responsive content imagery. */
+
 export const metadata: Metadata = {
   title: "Atlas sastojaka",
   description: "Razumi šta aktivni sastojci rade, kome odgovaraju i kako se bezbedno uklapaju u rutinu.",
@@ -65,18 +67,23 @@ export default function IngredientsPage() {
                 const symbol = ingredient.name.split(" ").map((part) => part[0]).join("").slice(0, 2);
 
                 return (
-                  <article className="ingredient-card" id={ingredient.slug} key={ingredient.id}>
-                    <div>
+                  <article className="ingredient-card ingredient-card--atlas" id={ingredient.slug} key={ingredient.id}>
+                    <div className="ingredient-card__visual">
+                      <img src={ingredient.image} alt={`Editorial prikaz sastojka: ${ingredient.name}`} width={592} height={592} loading="lazy" decoding="async" />
                       <div className="ingredient-card__symbol">{symbol}</div>
-                      <span>{ingredient.family}</span>
-                      <h3>{ingredient.name}</h3>
-                      <p>{ingredient.summary}</p>
                     </div>
-                    <div style={{ marginTop: 24 }}>
-                      <span>Najbolje za</span>
-                      <p style={{ marginTop: 7 }}>
-                        {ingredient.bestForConcernIds.map((concernId) => concerns.find((concern) => concern.id === concernId)?.name).filter(Boolean).join(" · ")}
-                      </p>
+                    <div className="ingredient-card__body">
+                      <div>
+                        <span>{ingredient.family}</span>
+                        <h3>{ingredient.name}</h3>
+                        <p>{ingredient.summary}</p>
+                      </div>
+                      <div className="ingredient-card__best-for">
+                        <span>Najbolje za</span>
+                        <p>
+                          {ingredient.bestForConcernIds.map((concernId) => concerns.find((concern) => concern.id === concernId)?.name).filter(Boolean).join(" · ")}
+                        </p>
+                      </div>
                     </div>
                   </article>
                 );

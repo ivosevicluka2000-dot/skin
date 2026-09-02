@@ -11,6 +11,9 @@ import {
   products,
 } from "@/lib/data/catalog";
 import { notFound } from "next/navigation";
+import { ProductPhoto } from "@/components/product-photo";
+
+/* eslint-disable @next/next/no-img-element -- generated EQUA concern still lifes are checked-in, responsive content imagery. */
 
 type ConcernPageProps = {
   params: Promise<{ slug: string }>;
@@ -57,8 +60,9 @@ export default async function ConcernPage({ params }: ConcernPageProps) {
           <p style={{ maxWidth: 570, margin: "25px 0 32px", fontSize: 19 }}>{concern.shortDescription}</p>
           <Link className="button button--dark" href="/quiz">Složi moju rutinu <ArrowUpRight size={16} /></Link>
         </div>
-        <div className="concern-detail-hero__orb" aria-hidden="true">
-          {String(concernIndex).padStart(2, "0")}
+        <div className="concern-detail-hero__visual">
+          <img src={concern.image} alt={`Vizuelni vodič za temu: ${concern.name}`} width={592} height={592} />
+          <span aria-hidden="true">{String(concernIndex).padStart(2, "0")}</span>
         </div>
       </section>
 
@@ -95,15 +99,21 @@ export default async function ConcernPage({ params }: ConcernPageProps) {
         </div>
         <div className="ingredient-grid">
           {relatedProducts.map((product) => (
-            <Link className="ingredient-card" href={`/product/${product.slug}`} key={product.id}>
-              <div>
+            <Link className="concern-product-card" href={`/product/${product.slug}`} key={product.id}>
+              <div className="concern-product-card__visual">
+                <ProductPhoto product={product} />
                 <span>{brandById[product.brandId].name} · {product.size}</span>
-                <h3>{product.name}</h3>
-                <p>{product.shortDescription}</p>
               </div>
-              <div>
-                <span>{product.routineStep}</span>
-                <p style={{ marginTop: 8, color: "var(--ink)", fontWeight: 750 }}>{formatRsd(product.priceRsd)}</p>
+              <div className="concern-product-card__body">
+                <div>
+                  <span>{brandById[product.brandId].name} · {product.size}</span>
+                  <h3>{product.name}</h3>
+                  <p>{product.shortDescription}</p>
+                </div>
+                <div className="concern-product-card__foot">
+                  <span>{product.routineStep}</span>
+                  <strong>{formatRsd(product.priceRsd)}</strong>
+                </div>
               </div>
             </Link>
           ))}
@@ -122,7 +132,7 @@ export default async function ConcernPage({ params }: ConcernPageProps) {
           <div className="article-grid">
             {relatedArticles.map((article) => (
               <Link className="article-card" href={`/journal/${article.slug}`} key={article.id}>
-                <div className="article-card__visual" aria-hidden="true" />
+                <div className="article-card__visual"><img src={article.image} alt="" width={1200} height={800} loading="lazy" decoding="async" /></div>
                 <div className="article-card__copy">
                   <span>{article.eyebrow} · {article.readingMinutes} min</span>
                   <h3>{article.title}</h3>

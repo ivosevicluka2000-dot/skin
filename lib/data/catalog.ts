@@ -63,7 +63,7 @@ export const concerns: readonly Concern[] = [
     shortDescription: "Za začepljene pore, povremene bubuljice i masniju T-zonu.",
     description: "Rutina koja nežno čisti pore, smiruje upalne promene i čuva kožnu barijeru bez agresivnog isušivanja.",
     accent: "#A8B46C",
-    image: "/images/concerns/akne.webp",
+    image: "/images/concerns/akne.jpg",
     recommendedIngredientIds: ["salicilna-kiselina", "niacinamid", "azelainska-kiselina"],
   },
   {
@@ -74,7 +74,7 @@ export const concerns: readonly Concern[] = [
     shortDescription: "Za kožu koja pecka, zateže ili lako reaguje na nove proizvode.",
     description: "Jednostavna nega sa umirujućim sastojcima, bez nepotrebnog preopterećivanja aktivima.",
     accent: "#D8B7AF",
-    image: "/images/concerns/osetljivost.webp",
+    image: "/images/concerns/osetljivost.jpg",
     recommendedIngredientIds: ["centela", "pantenol", "ceramidi"],
   },
   {
@@ -85,7 +85,7 @@ export const concerns: readonly Concern[] = [
     shortDescription: "Za prolazno crvenilo i osećaj toplote ili nelagode.",
     description: "Formule koje podržavaju oporavak kože, smanjuju osećaj nelagode i vraćaju ujednačeniji izgled.",
     accent: "#C9998F",
-    image: "/images/concerns/crvenilo.webp",
+    image: "/images/concerns/crvenilo.jpg",
     recommendedIngredientIds: ["azelainska-kiselina", "centela", "pantenol"],
   },
   {
@@ -96,7 +96,7 @@ export const concerns: readonly Concern[] = [
     shortDescription: "Za perutanje, hrapavost i osećaj zategnutosti.",
     description: "Lipidi i emolijensi nadoknađuju ono što suvoj koži nedostaje i pomažu da ostane meka tokom dana.",
     accent: "#C9A879",
-    image: "/images/concerns/suvoca.webp",
+    image: "/images/concerns/suvoca.jpg",
     recommendedIngredientIds: ["ceramidi", "skvalan", "hijaluronska-kiselina"],
   },
   {
@@ -107,7 +107,7 @@ export const concerns: readonly Concern[] = [
     shortDescription: "Za sitne linije od dehidratacije i kožu kojoj nedostaje voda.",
     description: "Humektansi privlače vlagu, dok završna krema pomaže da se ona zadrži u koži.",
     accent: "#8BB8C4",
-    image: "/images/concerns/dehidratacija.webp",
+    image: "/images/concerns/dehidratacija.jpg",
     recommendedIngredientIds: ["hijaluronska-kiselina", "pantenol", "skvalan"],
   },
   {
@@ -118,7 +118,7 @@ export const concerns: readonly Concern[] = [
     shortDescription: "Za tragove nakon akni, sunčane mrlje i neujednačen ten.",
     description: "Dosledna rutina sa posvetljujućim aktivima i obaveznom dnevnom zaštitom od sunca.",
     accent: "#B690C7",
-    image: "/images/concerns/hiperpigmentacija.webp",
+    image: "/images/concerns/hiperpigmentacija.jpg",
     recommendedIngredientIds: ["vitamin-c", "niacinamid", "azelainska-kiselina", "uv-filteri"],
   },
   {
@@ -129,7 +129,7 @@ export const concerns: readonly Concern[] = [
     shortDescription: "Za fine linije, gubitak elastičnosti i neujednačenu teksturu.",
     description: "Postepeno uvedeni retinoidi, peptidi i svakodnevni SPF čine osnovu održive age-support rutine.",
     accent: "#9C866B",
-    image: "/images/concerns/age-support.webp",
+    image: "/images/concerns/age-support.jpg",
     recommendedIngredientIds: ["retinal", "peptidi", "uv-filteri"],
   },
   {
@@ -140,7 +140,7 @@ export const concerns: readonly Concern[] = [
     shortDescription: "Za umoran izgled, sivkast ten i grublju površinu kože.",
     description: "Antioksidansi, hidratacija i blago zaglađivanje vraćaju svežinu bez agresivne eksfolijacije.",
     accent: "#D4B85D",
-    image: "/images/concerns/bez-sjaja.webp",
+    image: "/images/concerns/bez-sjaja.jpg",
     recommendedIngredientIds: ["vitamin-c", "niacinamid", "hijaluronska-kiselina"],
   },
 ];
@@ -161,7 +161,7 @@ export const ingredients: readonly Ingredient[] = [
       { ingredientId: "hijaluronska-kiselina", relationship: "kombinuj", note: "Hidratantna i dobro podnošljiva kombinacija." },
       { ingredientId: "azelainska-kiselina", relationship: "kombinuj", note: "Dobra podrška koži sklonoj nepravilnostima." },
     ],
-    image: "/images/ingredients/niacinamid.webp",
+    image: "/images/ingredients/niacinamid.jpg",
   },
   {
     id: "hijaluronska-kiselina",
@@ -175,7 +175,7 @@ export const ingredients: readonly Ingredient[] = [
     suitableSkinTypes: ["normalna", "suva", "masna", "mesovita", "osetljiva"],
     usage: "Nanesite na blago vlažnu kožu, zatim zaključajte hidrataciju kremom.",
     pairings: [{ ingredientId: "ceramidi", relationship: "kombinuj", note: "Ceramidi pomažu da se privučena vlaga zadrži." }],
-    image: "/images/ingredients/hijaluronska-kiselina.webp",
+    image: "/images/ingredients/hijaluronska-kiselina.jpg",
   },
   {
     id: "salicilna-kiselina",
@@ -193,7 +193,7 @@ export const ingredients: readonly Ingredient[] = [
       { ingredientId: "niacinamid", relationship: "kombinuj", note: "Niacinamid podržava barijeru nakon eksfolijacije." },
       { ingredientId: "retinal", relationship: "razdvoji", note: "Koristite različitim večerima radi manje iritacije." },
     ],
-    image: "/images/ingredients/salicilna-kiselina.webp",
+    image: "/images/ingredients/salicilna-kiselina.jpg",
   },
   {
     id: "retinal",
@@ -211,7 +211,7 @@ export const ingredients: readonly Ingredient[] = [
       { ingredientId: "ceramidi", relationship: "kombinuj", note: "Barijerna krema poboljšava podnošljivost." },
       { ingredientId: "salicilna-kiselina", relationship: "razdvoji", note: "Koristite različitim večerima." },
     ],
-    image: "/images/ingredients/retinal.webp",
+    image: "/images/ingredients/retinal.jpg",
   },
   {
     id: "ceramidi",
@@ -225,7 +225,7 @@ export const ingredients: readonly Ingredient[] = [
     suitableSkinTypes: ["normalna", "suva", "masna", "mesovita", "osetljiva"],
     usage: "Koristite kao završni korak ujutru pre SPF-a i uveče.",
     pairings: [{ ingredientId: "hijaluronska-kiselina", relationship: "kombinuj", note: "Komplementarna hidratantna kombinacija." }],
-    image: "/images/ingredients/ceramidi.webp",
+    image: "/images/ingredients/ceramidi.jpg",
   },
   {
     id: "vitamin-c",
@@ -239,7 +239,7 @@ export const ingredients: readonly Ingredient[] = [
     suitableSkinTypes: ["normalna", "suva", "masna", "mesovita"],
     usage: "Nanesite ujutru pre kreme i SPF-a.",
     pairings: [{ ingredientId: "uv-filteri", relationship: "kombinuj", note: "Antioksidans dopunjuje svakodnevnu fotoprotekciju." }],
-    image: "/images/ingredients/vitamin-c.webp",
+    image: "/images/ingredients/vitamin-c.jpg",
   },
   {
     id: "azelainska-kiselina",
@@ -253,7 +253,7 @@ export const ingredients: readonly Ingredient[] = [
     suitableSkinTypes: ["normalna", "suva", "masna", "mesovita", "osetljiva"],
     usage: "Počnite jednom dnevno; po potrebi nanesite preko laganog hidratantnog seruma.",
     pairings: [{ ingredientId: "niacinamid", relationship: "kombinuj", note: "Dobro podnošljiva rutina za tragove i nepravilnosti." }],
-    image: "/images/ingredients/azelainska-kiselina.webp",
+    image: "/images/ingredients/azelainska-kiselina.jpg",
   },
   {
     id: "centela",
@@ -267,7 +267,7 @@ export const ingredients: readonly Ingredient[] = [
     suitableSkinTypes: ["normalna", "suva", "masna", "mesovita", "osetljiva"],
     usage: "Može se koristiti ujutru i uveče, posebno nakon aktivnih tretmana.",
     pairings: [{ ingredientId: "pantenol", relationship: "kombinuj", note: "Dodatna umirujuća podrška barijeri." }],
-    image: "/images/ingredients/centela.webp",
+    image: "/images/ingredients/centela.jpg",
   },
   {
     id: "peptidi",
@@ -281,7 +281,7 @@ export const ingredients: readonly Ingredient[] = [
     suitableSkinTypes: ["normalna", "suva", "masna", "mesovita", "osetljiva"],
     usage: "Koristite ujutru ili uveče pre kreme.",
     pairings: [{ ingredientId: "hijaluronska-kiselina", relationship: "kombinuj", note: "Hidratantna baza daje puniji izgled kože." }],
-    image: "/images/ingredients/peptidi.webp",
+    image: "/images/ingredients/peptidi.jpg",
   },
   {
     id: "skvalan",
@@ -295,7 +295,7 @@ export const ingredients: readonly Ingredient[] = [
     suitableSkinTypes: ["normalna", "suva", "masna", "mesovita", "osetljiva"],
     usage: "Koristite u kremi ili kao poslednji večernji korak.",
     pairings: [{ ingredientId: "hijaluronska-kiselina", relationship: "kombinuj", note: "Pomaže da se hidratacija zadrži." }],
-    image: "/images/ingredients/skvalan.webp",
+    image: "/images/ingredients/skvalan.jpg",
   },
   {
     id: "pantenol",
@@ -309,7 +309,7 @@ export const ingredients: readonly Ingredient[] = [
     suitableSkinTypes: ["normalna", "suva", "masna", "mesovita", "osetljiva"],
     usage: "Nanesite po potrebi na celo lice ili lokalno na suve zone.",
     pairings: [{ ingredientId: "centela", relationship: "kombinuj", note: "Jednostavan umirujući duo." }],
-    image: "/images/ingredients/pantenol.webp",
+    image: "/images/ingredients/pantenol.jpg",
   },
   {
     id: "uv-filteri",
@@ -323,7 +323,7 @@ export const ingredients: readonly Ingredient[] = [
     suitableSkinTypes: ["normalna", "suva", "masna", "mesovita", "osetljiva"],
     usage: "Nanesite obilno kao poslednji jutarnji korak i obnovite tokom izlaganja suncu.",
     pairings: [{ ingredientId: "vitamin-c", relationship: "kombinuj", note: "Vitamin C pruža dodatnu antioksidativnu podršku." }],
-    image: "/images/ingredients/uv-filteri.webp",
+    image: "/images/ingredients/uv-filteri.jpg",
   },
 ];
 

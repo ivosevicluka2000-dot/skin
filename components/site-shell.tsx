@@ -15,7 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { articles, concerns, products } from "@/lib/data/catalog";
 import { courses } from "@/lib/data";
 import { useCommerce } from "./commerce-store";
@@ -57,6 +57,26 @@ export function SiteShell({ children }: { children: ReactNode }) {
     removeFromCart,
     removeFromRoutine,
   } = useCommerce();
+
+  useLayoutEffect(() => {
+    if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
+
+    const resetScroll = () => {
+      const root = document.documentElement;
+      const previousBehavior = root.style.scrollBehavior;
+      root.style.scrollBehavior = "auto";
+      window.scrollTo(0, 0);
+      root.style.scrollBehavior = previousBehavior;
+    };
+
+    resetScroll();
+    const frame = window.requestAnimationFrame(resetScroll);
+    const timer = window.setTimeout(resetScroll, 120);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+    };
+  }, [pathname]);
 
   const searchResults = useMemo(() => {
     const query = searchQuery.trim().toLocaleLowerCase("sr-Latn");
@@ -196,8 +216,14 @@ export function SiteShell({ children }: { children: ReactNode }) {
             <Link href="/ingredients">Sastojci</Link>
           </div>
           <div>
-            <strong>Pomoć</strong>
+            <strong>Tvoj EQUA</strong>
             <Link href="/account">Moj nalog</Link>
+            <Link href="/quiz">Skin check</Link>
+            <Link href="/routine">Moja rutina</Link>
+            <Link href="/cart">Korpa</Link>
+          </div>
+          <div>
+            <strong>Podrška</strong>
             <Link href="/community">EQUA Club</Link>
             <Link href="/cart">Dostava i plaćanje</Link>
             <a href="mailto:hello@equa.rs">Kontakt</a>

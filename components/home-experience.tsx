@@ -77,7 +77,8 @@ export function HomeExperience({ concerns, products, articles, courses }: Props)
         <div className="concern-grid">
           {concerns.slice(0, 4).map((concern, index) => (
             <motion.div key={concern.id} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ delay: index * .07 }}>
-              <Link className="concern-card" href={`/concerns/${concern.slug}`}>
+              <Link className="concern-card concern-card--image" href={`/concerns/${concern.slug}`}>
+                <img className="concern-card__image" src={concern.image} alt="" width={592} height={592} loading="lazy" decoding="async" />
                 <span className="concern-card__number">0{index + 1}</span><span className="concern-card__orb" />
                 <div className="concern-card__bottom"><div><h3>{concern.name}</h3><p>{concern.shortDescription}</p></div><span className="concern-card__arrow"><ArrowDownRight size={20} /></span></div>
               </Link>
@@ -145,7 +146,7 @@ export function HomeExperience({ concerns, products, articles, courses }: Props)
 
       <section className="journal-section">
         <div className="section-heading-row"><div><p className="eyebrow">EQUA journal</p><h2 className="section-title">Znanje koje staje između dva koraka.</h2></div><Link className="text-link" href="/journal">Svi vodiči <ArrowRight size={17} /></Link></div>
-        <div className="article-grid">{articles.slice(0, 3).map((article) => <Link className="article-card" href={`/journal/${article.slug}`} key={article.id}><div className="article-card__visual" /><div className="article-card__copy"><span>{article.eyebrow} · {article.readingMinutes} min</span><h3>{article.title}</h3><span className="text-link">Pročitaj vodič <ArrowRight size={14} /></span></div></Link>)}</div>
+        <div className="article-grid">{articles.slice(0, 3).map((article) => <Link className="article-card" href={`/journal/${article.slug}`} key={article.id}><div className="article-card__visual"><img src={article.image} alt="" width={1200} height={800} loading="lazy" decoding="async" /></div><div className="article-card__copy"><span>{article.eyebrow} · {article.readingMinutes} min</span><h3>{article.title}</h3><span className="text-link">Pročitaj vodič <ArrowRight size={14} /></span></div></Link>)}</div>
       </section>
 
       <section className="home-community">
