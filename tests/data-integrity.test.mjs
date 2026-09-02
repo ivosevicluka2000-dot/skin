@@ -36,6 +36,7 @@ test("seed catalog is substantial, unique, and internally connected", async () =
     articles,
     brands,
     concerns,
+    courses,
     ingredients,
     products,
     quizQuestions,
@@ -49,6 +50,7 @@ test("seed catalog is substantial, unique, and internally connected", async () =
   assert.ok(articles.length >= 8, `Expected at least 8 articles; found ${articles.length}`);
   assert.ok(routines.length >= 6, `Expected at least 6 routines; found ${routines.length}`);
   assert.ok(quizQuestions.length >= 7, `Expected at least 7 quiz questions; found ${quizQuestions.length}`);
+  assert.ok(courses.length >= 3, `Expected at least 3 courses; found ${courses.length}`);
 
   for (const [label, records] of Object.entries({
     brand: brands,
@@ -58,6 +60,7 @@ test("seed catalog is substantial, unique, and internally connected", async () =
     article: articles,
     routine: routines,
     "quiz question": quizQuestions,
+    course: courses,
   })) {
     assertUnique(records.map((record) => record.id), `${label} IDs`);
   }
@@ -66,6 +69,7 @@ test("seed catalog is substantial, unique, and internally connected", async () =
   assertUnique(concerns.map((concern) => concern.slug), "concern slugs");
   assertUnique(ingredients.map((ingredient) => ingredient.slug), "ingredient slugs");
   assertUnique(articles.map((article) => article.slug), "article slugs");
+  assertUnique(courses.map((course) => course.slug), "course slugs");
 
   const brandIds = new Set(brands.map((brand) => brand.id));
   const concernIds = new Set(concerns.map((concern) => concern.id));
@@ -122,6 +126,24 @@ test("seed catalog is substantial, unique, and internally connected", async () =
     const morningProducts = routine.morning.map((item) => products.find((product) => product.id === item.productId));
     assert.ok(morningProducts.some((product) => product?.routineStep === "spf"), `${routine.id}: morning routine has no SPF`);
   }
+
+  const lessonIds = [];
+  const lessonSlugs = [];
+  for (const course of courses) {
+    assert.ok(course.modules.length > 0, `${course.id}: course has no modules`);
+    for (const courseModule of course.modules) {
+      assert.ok(courseModule.lessons.length > 0, `${course.id}/${courseModule.id}: module has no lessons`);
+      for (const lesson of courseModule.lessons) {
+        lessonIds.push(lesson.id);
+        lessonSlugs.push(`${course.slug}/${lesson.slug}`);
+        assert.ok(lesson.durationMinutes > 0, `${lesson.id}: invalid duration`);
+        assertReferences(lesson.productIds, productIds, `${lesson.id} products`);
+        assert.ok(lesson.checklist.length >= 3, `${lesson.id}: checklist is too short`);
+      }
+    }
+  }
+  assertUnique(lessonIds, "lesson IDs");
+  assertUnique(lessonSlugs, "lesson slugs within courses");
 
   const answerIds = quizQuestions.flatMap((question) => question.answers.map((answer) => answer.id));
   assertUnique(answerIds, "quiz answer IDs");

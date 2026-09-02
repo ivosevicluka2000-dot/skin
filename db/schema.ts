@@ -144,3 +144,83 @@ export const eventLog = sqliteTable(
   },
   (table) => [index("idx_event_log_event_type_created_at").on(table.eventType, table.createdAt)],
 );
+
+export const courseEnrollments = sqliteTable(
+  "course_enrollments",
+  {
+    id: text("id").primaryKey(),
+    ownerId: text("owner_id").notNull(),
+    courseId: text("course_id").notNull(),
+    status: text("status").notNull().default("active"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_course_enrollments_owner_course").on(table.ownerId, table.courseId),
+    index("idx_course_enrollments_course_status").on(table.courseId, table.status),
+  ],
+);
+
+export const lessonProgress = sqliteTable(
+  "lesson_progress",
+  {
+    id: text("id").primaryKey(),
+    ownerId: text("owner_id").notNull(),
+    courseId: text("course_id").notNull(),
+    lessonId: text("lesson_id").notNull(),
+    progressSeconds: integer("progress_seconds").notNull().default(0),
+    completed: integer("completed", { mode: "boolean" }).notNull().default(false),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_lesson_progress_owner_lesson").on(table.ownerId, table.lessonId),
+    index("idx_lesson_progress_owner_course").on(table.ownerId, table.courseId),
+    check("lesson_progress_seconds_nonnegative", sql`${table.progressSeconds} >= 0`),
+  ],
+);
+
+export const quizResults = sqliteTable(
+  "quiz_results",
+  {
+    id: text("id").primaryKey(),
+    ownerId: text("owner_id").notNull(),
+    quizVersion: text("quiz_version").notNull().default("2026-09"),
+    routineId: text("routine_id").notNull(),
+    routineName: text("routine_name").notNull(),
+    primarySignal: text("primary_signal").notNull(),
+    answersJson: text("answers_json").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [index("idx_quiz_results_owner_created_at").on(table.ownerId, table.createdAt)],
+);
+
+export const communityPosts = sqliteTable(
+  "community_posts",
+  {
+    id: text("id").primaryKey(),
+    ownerId: text("owner_id").notNull(),
+    spaceId: text("space_id").notNull(),
+    authorName: text("author_name").notNull(),
+    title: text("title").notNull(),
+    body: text("body").notNull(),
+    status: text("status").notNull().default("published"),
+    likeCount: integer("like_count").notNull().default(0),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [index("idx_community_posts_space_status_created").on(table.spaceId, table.status, table.createdAt)],
+);
+
+export const communityComments = sqliteTable(
+  "community_comments",
+  {
+    id: text("id").primaryKey(),
+    postId: text("post_id").notNull().references(() => communityPosts.id, { onDelete: "cascade" }),
+    ownerId: text("owner_id").notNull(),
+    authorName: text("author_name").notNull(),
+    body: text("body").notNull(),
+    status: text("status").notNull().default("published"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [index("idx_community_comments_post_status_created").on(table.postId, table.status, table.createdAt)],
+);

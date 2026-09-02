@@ -8,6 +8,8 @@ export const staticPageContract = [
   { path: "/cart", name: "cart" },
   { path: "/account", name: "account" },
   { path: "/admin", name: "admin" },
+  { path: "/academy", name: "academy" },
+  { path: "/community", name: "community" },
 ];
 
 export const dynamicPageContract = [
@@ -25,6 +27,16 @@ export const dynamicPageContract = [
     name: "concern detail",
     linkPattern: /href=["'](\/concerns\/[^"'#?]+)["']/gi,
     discoveryPaths: ["/", "/shop", "/quiz"],
+  },
+  {
+    name: "course detail",
+    linkPattern: /href=["'](\/academy\/(?![^"']+\/)[^"'#?]+)["']/gi,
+    discoveryPaths: ["/academy", "/"],
+  },
+  {
+    name: "course lesson",
+    linkPattern: /href=["'](\/academy\/[^"'#?]+\/[^"'#?]+)["']/gi,
+    discoveryPaths: ["/academy/skin-barrier-reset"],
   },
 ];
 

@@ -5,12 +5,12 @@
 | Area | Checks | Gate |
 |---|---|---|
 | Build/runtime | vinext production build; Cloudflare Worker import; Node 22+ | Must pass |
-| Route smoke | `/`, `/shop`, `/journal`, `/ingredients`, `/quiz`, `/routine`, `/cart`, `/account`, `/admin` | HTTP 200 + HTML |
-| Dynamic routes | Discover and open one linked product, article, and concern | HTTP 200 + HTML |
+| Route smoke | `/`, `/academy`, `/community`, `/shop`, `/journal`, `/ingredients`, `/quiz`, `/routine`, `/cart`, `/account`, `/admin` | HTTP 200 + HTML |
+| Dynamic routes | Discover and open one linked course, lesson, product, article, and concern | HTTP 200 + HTML |
 | Document quality | Serbian `lang`, unique H1, title, meta description, main landmark | Must pass |
 | Basic accessibility | Image alt text, named buttons/links, unique IDs, no empty/hash links | Must pass |
 | Content integrity | At least 4 linked products, 2 articles, and 3 concerns | Must pass |
-| Seed integrity | 24 products, 6 brands, 8 concerns, 12 ingredients, 8 articles, 6 routines, 7 quiz questions; all references resolve | Must pass |
+| Seed integrity | 24 products, 6 brands, 8 concerns, 12 ingredients, 8 articles, 6 routines, 9 quiz questions, 3 courses; all references resolve | Must pass |
 | Recommendation safety | Deterministic scoring, duplicate-answer handling, pregnancy retinal exclusion | Must pass |
 | Failure handling | Unknown route returns 404, not a 500 | Must pass |
 | API contract | Health and D1-backed endpoints return JSON; degraded storage is explicit 503 | Must pass |
@@ -38,6 +38,9 @@ node --test tests/rendered-html.test.mjs
 | Journey | Desktop | Mobile | Keyboard | Expected result |
 |---|---:|---:|---:|---|
 | Browse shop and filter products | ✓ | ✓ | ✓ | Results and count update; filters can be cleared |
+| Landing → Academy → lesson → product | ✓ | ✓ | ✓ | Course structure, progress and shoppable context remain connected |
+| Complete lesson and reload | ✓ | ✓ | ✓ | Completed state persists and account progress updates |
+| Open community and create topic | ✓ | ✓ | ✓ | Valid topic persists; invalid input is rejected |
 | Open product and add to cart | ✓ | ✓ | ✓ | Correct product, price, quantity, and cart total |
 | Complete skin quiz | ✓ | ✓ | ✓ | Progress is clear; answers can be changed; result is repeatable |
 | Build AM/PM routine | ✓ | ✓ | ✓ | Add/swap/remove works and survives refresh when promised |

@@ -4,18 +4,20 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
-import { ArrowDownRight, ArrowRight, Check, MoveRight, Sparkles } from "lucide-react";
+import { ArrowDownRight, ArrowRight, BookOpen, Check, Clock3, MessageCircle, MoveRight, Play, ShoppingBag, Sparkles, Users } from "lucide-react";
 import { motion } from "motion/react";
-import type { Article, Concern, Product } from "@/lib/data/types";
+import type { Article, Concern, Course, Product } from "@/lib/data/types";
+import { courseDuration, courseLessonCount } from "@/lib/data";
 import { ProductCard } from "./product-card";
 
 type Props = {
   concerns: readonly Concern[];
   products: readonly Product[];
   articles: readonly Article[];
+  courses: readonly Course[];
 };
 
-export function HomeExperience({ concerns, products, articles }: Props) {
+export function HomeExperience({ concerns, products, articles, courses }: Props) {
   const [newsletterState, setNewsletterState] = useState<"idle" | "loading" | "success" | "error">("idle");
 
   async function submitNewsletter(event: FormEvent<HTMLFormElement>) {
@@ -28,7 +30,7 @@ export function HomeExperience({ concerns, products, articles }: Props) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ email: data.get("email"), source: "homepage", consent: true }),
       });
-      if (!response.ok && response.status !== 503) throw new Error("request failed");
+      if (!response.ok) throw new Error("request failed");
       setNewsletterState("success");
       event.currentTarget.reset();
     } catch {
@@ -40,16 +42,16 @@ export function HomeExperience({ concerns, products, articles }: Props) {
     <>
       <section className="hero">
         <motion.div className="hero__copy" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .65 }}>
-          <p className="eyebrow">Kurirana nega · pametne rutine</p>
-          <h1 className="display-title">Tvoja koža nije <em>kategorija.</em></h1>
-          <p className="hero__lead">Ne prodajemo još jedan korak. Povezujemo problem, sastojak i proizvod u rutinu koju stvarno možeš da pratiš.</p>
+          <p className="eyebrow">Akademija · Skin Check · Shop · Club</p>
+          <h1 className="display-title">Razumi kožu. Izgradi rutinu koja <em>radi.</em></h1>
+          <p className="hero__lead">Jedan nalog povezuje video lekcije, stručne vodiče, personalizovanu rutinu, kupovinu i zajednicu koja zna kontekst.</p>
           <div className="hero__actions">
             <Link className="button button--dark" href="/quiz">Uradi skin check <ArrowRight size={17} /></Link>
-            <Link className="button button--ghost" href="/shop">Istraži negu</Link>
+            <Link className="button button--ghost" href="/academy"><Play size={16} /> Otvori Akademiju</Link>
           </div>
           <div className="hero__proof">
             <div className="hero__proof-avatars"><span /><span /><span /></div>
-            <span>4.9 prosečna ocena zajednice · 2 minuta do rutine</span>
+            <span>MVP demo · od signala do lekcije i rutine za 3 minuta</span>
           </div>
         </motion.div>
         <motion.div className="hero-visual" initial={{ opacity: 0, scale: .97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: .8, delay: .12 }}>
@@ -81,6 +83,24 @@ export function HomeExperience({ concerns, products, articles }: Props) {
               </Link>
             </motion.div>
           ))}
+        </div>
+      </section>
+
+      <section className="home-paths" aria-label="Izaberi kako želiš da počneš">
+        <Link href="/quiz"><span>01</span><Sparkles /><div><small>Imam problem</small><h2>Želim personalizovan plan.</h2><p>Skin Blueprint povezuje stanje, cilj i realan ritam nege.</p></div><ArrowRight /></Link>
+        <Link href="/academy"><span>02</span><BookOpen /><div><small>Želim da naučim</small><h2>Želim da razumem zašto.</h2><p>Video programi, checkliste i diskusije vezane za lekciju.</p></div><ArrowRight /></Link>
+        <Link href="/shop"><span>03</span><ShoppingBag /><div><small>Znam šta tražim</small><h2>Želim kuriran izbor.</h2><p>Proizvodi sa jasnim mestom, redosledom i safety napomenama.</p></div><ArrowRight /></Link>
+      </section>
+
+      <section className="home-academy">
+        <div className="section-heading-row"><div><p className="eyebrow">EQUA Akademija</p><h2 className="section-title">Jedna lekcija. Više pravih odluka.</h2></div><Link className="text-link" href="/academy">Svi programi <ArrowRight size={17} /></Link></div>
+        <div className="home-course-grid">
+          <Link className="home-course-feature" href={`/academy/${courses[0].slug}`}>
+            <img src={courses[0].image} alt="Skin Barrier Reset video program" width={1800} height={1126} loading="lazy" decoding="async" />
+            <span className="home-course-feature__shade" />
+            <div className="home-course-feature__copy"><p className="eyebrow">Besplatan program · 14 dana</p><h3>{courses[0].title}</h3><p>{courses[0].description}</p><div><span><Play /> {courseLessonCount(courses[0])} lekcija</span><span><Clock3 /> {courseDuration(courses[0])} min</span></div><strong>Počni program <ArrowRight /></strong></div>
+          </Link>
+          <div className="home-lesson-shop"><div className="home-lesson-shop__top"><span className="home-lesson-shop__play"><Play fill="currentColor" /></span><div><small>03:42 · proizvod pomenut u lekciji</small><strong>Zašto ceramidi dolaze posle humektansa?</strong></div></div><div className="home-lesson-shop__product"><img src="/images/products/cream.jpg" alt="Ceramide Comfort Cream" width={600} height={600} loading="lazy" /><div><span>Terra Calm</span><h3>Ceramide Comfort Cream</h3><p>Korak 03 · zaključava vlagu bez aktivnog opterećenja.</p><strong>3.390 RSD</strong></div><button aria-label="Otvori lekciju"><ArrowRight /></button></div><p className="home-lesson-shop__note">Proizvodi nisu reklama preko videa — pojavljuju se uz razlog, redosled i alternativu.</p></div>
         </div>
       </section>
 
@@ -126,6 +146,10 @@ export function HomeExperience({ concerns, products, articles }: Props) {
       <section className="journal-section">
         <div className="section-heading-row"><div><p className="eyebrow">EQUA journal</p><h2 className="section-title">Znanje koje staje između dva koraka.</h2></div><Link className="text-link" href="/journal">Svi vodiči <ArrowRight size={17} /></Link></div>
         <div className="article-grid">{articles.slice(0, 3).map((article) => <Link className="article-card" href={`/journal/${article.slug}`} key={article.id}><div className="article-card__visual" /><div className="article-card__copy"><span>{article.eyebrow} · {article.readingMinutes} min</span><h3>{article.title}</h3><span className="text-link">Pročitaj vodič <ArrowRight size={14} /></span></div></Link>)}</div>
+      </section>
+
+      <section className="home-community">
+        <div><p className="eyebrow">EQUA Club</p><h2 className="section-title">Zajednica koja zna na kojoj si lekciji.</h2><p>Postavi pitanje iz programa, podeli napredak i dobij odgovor bez ponavljanja cele rutine od početka.</p><div className="community-hero__stats"><span><Users /> prostori po programu</span><span><MessageCircle /> ekspertni check-in</span></div><Link className="button button--dark" href="/community">Otvori zajednicu <ArrowRight size={16} /></Link></div><div className="home-community__thread"><span className="community-avatar">MP</span><div><small>dr Mina Petrović · EQUA ekspert</small><h3>Nedeljni check-in: šta je danas mirnije?</h3><p>Napišite jednu stvar koja se poboljšala i jednu koja je još nejasna. Odgovaram večeras.</p><div><span>24 odgovora</span><span>61 korisno</span></div></div></div>
       </section>
 
       <section className="newsletter-section" id="newsletter">

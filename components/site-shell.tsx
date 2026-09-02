@@ -17,13 +17,15 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { articles, concerns, products } from "@/lib/data/catalog";
+import { courses } from "@/lib/data";
 import { useCommerce } from "./commerce-store";
 import { ProductArt } from "./product-art";
 
 const navigation = [
   { href: "/shop", label: "Prodavnica" },
+  { href: "/academy", label: "Akademija" },
   { href: "/journal", label: "Vodiči" },
-  { href: "/ingredients", label: "Sastojci" },
+  { href: "/community", label: "Zajednica" },
   { href: "/quiz", label: "Skin check" },
 ];
 
@@ -68,7 +70,10 @@ export function SiteShell({ children }: { children: ReactNode }) {
     const articleResults = articles
       .filter((article) => `${article.title} ${article.excerpt}`.toLocaleLowerCase("sr-Latn").includes(query))
       .map((article) => ({ href: `/journal/${article.slug}`, label: article.title, type: "Vodič" }));
-    return [...productResults, ...concernResults, ...articleResults].slice(0, 7);
+    const courseResults = courses
+      .filter((course) => `${course.title} ${course.description}`.toLocaleLowerCase("sr-Latn").includes(query))
+      .map((course) => ({ href: `/academy/${course.slug}`, label: course.title, type: "Video program" }));
+    return [...productResults, ...courseResults, ...concernResults, ...articleResults].slice(0, 8);
   }, [searchQuery]);
 
   useEffect(() => {
@@ -186,13 +191,14 @@ export function SiteShell({ children }: { children: ReactNode }) {
           <div>
             <strong>Istraži</strong>
             <Link href="/shop">Prodavnica</Link>
+            <Link href="/academy">Akademija</Link>
             <Link href="/journal">Vodiči</Link>
             <Link href="/ingredients">Sastojci</Link>
-            <Link href="/admin">Admin demo</Link>
           </div>
           <div>
             <strong>Pomoć</strong>
             <Link href="/account">Moj nalog</Link>
+            <Link href="/community">EQUA Club</Link>
             <Link href="/cart">Dostava i plaćanje</Link>
             <a href="mailto:hello@equa.rs">Kontakt</a>
           </div>
@@ -234,7 +240,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
                 </button>
               </div>
               <nav className="mobile-menu__nav">
-                {[{ href: "/", label: "Početna" }, ...navigation, { href: "/routine", label: "Moja rutina" }].map(
+                {[{ href: "/", label: "Početna" }, ...navigation, { href: "/account", label: "Moj EQUA" }, { href: "/routine", label: "Moja rutina" }].map(
                   (item, index) => (
                     <Link key={item.href} href={item.href}>
                       <span>0{index + 1}</span>
@@ -287,7 +293,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
                 </div>
                 <div>
                   <span>Iz vodiča</span>
-                  <Link href="/journal">Kako kombinovati aktivne sastojke</Link>
+                  <Link href="/academy/skin-barrier-reset">Skin Barrier Reset</Link>
                   <Link href="/journal">Jutarnja rutina u četiri koraka</Link>
                 </div>
               </div>}
@@ -401,6 +407,9 @@ function Drawer({
           <button className="overlay-close" onClick={onClose} aria-label="Zatvori panel" />
           <motion.aside
             className="side-drawer"
+            role="dialog"
+            aria-modal="true"
+            aria-label={title}
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}

@@ -11,6 +11,8 @@ import {
   routeError,
 } from "@/lib/server/api";
 import { eventStatement, getDatabase, stableId } from "@/lib/server/db";
+import { products } from "@/lib/data/catalog";
+import { getChatGPTUser } from "@/app/chatgpt-auth";
 
 const ORDER_STATUSES = new Set(["pending", "confirmed", "processing", "shipped", "complete", "cancelled"]);
 const PAYMENT_METHODS = new Set(["cash_on_delivery", "demo_card"]);
@@ -65,23 +67,20 @@ function normalizeItems(value: unknown): NormalizedOrderItem[] {
     }
 
     const quantity = optionalBoundedInteger(candidate.quantity, `items[${index}].quantity`, 1, 20, 1);
-    const unitPriceCents = boundedInteger(
-      candidate.unitPriceCents,
-      `items[${index}].unitPriceCents`,
-      0,
-      100_000_000,
-    );
+    const productId = requiredString(candidate.productId, `items[${index}].productId`, 120);
+    const product = products.find((item) => item.id === productId);
+    if (!product) throw new ApiValidationError("Unknown product.", `items[${index}].productId`);
+    if (product.stock.status === "nema-na-stanju" || product.stock.quantity < quantity) {
+      throw new ApiValidationError(`${product.name} is not available in the requested quantity.`, `items[${index}].quantity`);
+    }
+    const unitPriceCents = product.priceRsd * 100;
 
     return {
       id: stableId("itm"),
-      productId: requiredString(candidate.productId, `items[${index}].productId`, 120),
-      productName: requiredString(
-        candidate.productName ?? candidate.name,
-        `items[${index}].productName`,
-        200,
-      ),
-      variantName: optionalString(candidate.variantName, `items[${index}].variantName`, 120),
-      routineSlot: optionalString(candidate.routineSlot, `items[${index}].routineSlot`, 40),
+      productId: product.id,
+      productName: product.name,
+      variantName: product.size,
+      routineSlot: product.routineStep,
       quantity,
       unitPriceCents,
       lineTotalCents: quantity * unitPriceCents,
@@ -104,13 +103,7 @@ export async function POST(request: Request): Promise<Response> {
       throw new ApiValidationError("Order total is outside the supported range.", "items");
     }
 
-    const shippingCents = optionalBoundedInteger(
-      body.shippingCents,
-      "shippingCents",
-      0,
-      100_000_000,
-      0,
-    );
+    const shippingCents = subtotalCents >= 600_000 ? 0 : 39_000;
     const totalCents = subtotalCents + shippingCents;
     const email = normalizedEmail(customer.email) as string;
     const firstName = requiredString(customer.firstName, "firstName", 80);
@@ -219,8 +212,13 @@ export async function POST(request: Request): Promise<Response> {
 export async function GET(request: Request): Promise<Response> {
   try {
     const url = new URL(request.url);
+    const user = await getChatGPTUser();
     const emailParam = url.searchParams.get("email");
-    const email = normalizedEmail(emailParam, false);
+    const email = user?.email ?? normalizedEmail(emailParam, false);
+    const requestedOrderNumber = optionalString(url.searchParams.get("orderNumber"), "orderNumber", 40);
+    if (!user && (!email || !requestedOrderNumber)) {
+      throw new ApiValidationError("Email and order number are required for guest lookup.", "orderNumber");
+    }
     const status = optionalString(url.searchParams.get("status"), "status", 20);
     if (status && !ORDER_STATUSES.has(status)) {
       throw new ApiValidationError("Unknown order status.", "status");
@@ -234,6 +232,10 @@ export async function GET(request: Request): Promise<Response> {
     if (email) {
       predicates.push("o.email = ?");
       bindings.push(email);
+    }
+    if (requestedOrderNumber) {
+      predicates.push("o.order_number = ?");
+      bindings.push(requestedOrderNumber.toUpperCase());
     }
     if (status) {
       predicates.push("o.status = ?");

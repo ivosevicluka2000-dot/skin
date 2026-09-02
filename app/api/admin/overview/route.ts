@@ -1,6 +1,7 @@
 import { products } from "@/lib/data/catalog";
 import { json, routeError } from "@/lib/server/api";
 import { getDatabase } from "@/lib/server/db";
+import { getChatGPTUser } from "@/app/chatgpt-auth";
 
 type SummaryRow = {
   orderCount: number;
@@ -14,6 +15,8 @@ type EventRow = { eventType: string; createdAt: string; subjectId: string | null
 
 export async function GET(): Promise<Response> {
   try {
+    const user = await getChatGPTUser();
+    if (!user) return json({ ok: false, error: { code: "AUTH_REQUIRED", message: "Admin sign-in is required." } }, 401);
     const database = await getDatabase();
     const [summary, trendResult, eventResult, routineCount, subscriberCount] = await Promise.all([
       database.prepare(`SELECT

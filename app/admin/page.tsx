@@ -12,14 +12,16 @@ import {
   RefreshCw,
   Search,
   ShoppingBag,
+  GraduationCap,
+  MessagesSquare,
   Sparkles,
   Users,
   Zap,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { brandById, products } from "@/lib/data";
+import { brandById, communitySeedPosts, courseDuration, courseLessonCount, courses, products } from "@/lib/data";
 
-type AdminView = "overview" | "orders" | "catalog" | "customers";
+type AdminView = "overview" | "orders" | "catalog" | "academy" | "community" | "customers";
 type OrderSummary = { id: string; orderNumber: string; status: string; itemCount: number; totalCents: number; currency: string; paymentMethod: string; createdAt: string };
 type Overview = {
   orders: number;
@@ -35,7 +37,7 @@ type Overview = {
 };
 
 const statusLabels: Record<string, string> = { pending: "Primljena", confirmed: "Potvrđena", processing: "Pakovanje", shipped: "Poslata", complete: "Isporučena", cancelled: "Otkazana" };
-const viewLabels: Record<AdminView, string> = { overview: "Pregled", orders: "Porudžbine", catalog: "Katalog", customers: "Kupci" };
+const viewLabels: Record<AdminView, string> = { overview: "Pregled", orders: "Porudžbine", catalog: "Katalog", academy: "Akademija", community: "Zajednica", customers: "Kupci" };
 const demoOrders: OrderSummary[] = [
   { id: "demo-1", orderNumber: "EQ-1048", status: "pending", itemCount: 3, totalCents: 918_000, currency: "RSD", paymentMethod: "demo_card", createdAt: "2026-08-28 11:42:00" },
   { id: "demo-2", orderNumber: "EQ-1047", status: "processing", itemCount: 4, totalCents: 1_296_000, currency: "RSD", paymentMethod: "cash_on_delivery", createdAt: "2026-08-28 09:18:00" },
@@ -97,7 +99,7 @@ export default function AdminPage() {
         <Link className="wordmark wordmark--light" href="/">EQUA<span>°</span></Link>
         <nav aria-label="Admin navigacija">
           {([
-            ["overview", CircleGauge], ["orders", ShoppingBag], ["catalog", Boxes], ["customers", Users],
+            ["overview", CircleGauge], ["orders", ShoppingBag], ["catalog", Boxes], ["academy", GraduationCap], ["community", MessagesSquare], ["customers", Users],
           ] as const).map(([view, Icon]) => <button key={view} className={activeView === view ? "is-active" : ""} onClick={() => setActiveView(view)}><Icon size={17} /><span>{viewLabels[view]}</span>{view === "orders" && <b>{pending}</b>}</button>)}
         </nav>
         <div className="admin-sidebar__bottom"><div className="admin-status"><i className={databaseReady ? "is-online" : ""} /><span><strong>{databaseReady ? "Sistem online" : "Demo režim"}</strong>{databaseReady ? "D1 povezan" : "Prikazni podaci"}</span></div><Link href="/" target="_blank">Storefront <ExternalLink size={14} /></Link></div>
@@ -139,6 +141,10 @@ export default function AdminPage() {
         {activeView === "orders" && <section className="admin-module admin-orders-module"><div className="admin-module__head"><div><span>Operativa</span><h2>Sve porudžbine</h2></div><div className="admin-table-filters"><button className="is-active">Sve</button><button>Čekaju</button><button>Poslate</button></div></div><OrderTable orders={visibleOrders} /></section>}
 
         {activeView === "catalog" && <section className="admin-module admin-orders-module"><div className="admin-module__head"><div><span>{products.length} SKU</span><h2>Katalog i zalihe</h2></div><Link className="button button--dark" href="/shop">Storefront <ArrowUpRight size={15} /></Link></div><div className="admin-table-wrap"><table className="admin-data-table"><thead><tr><th>Proizvod</th><th>Brend</th><th>Kategorija</th><th>Cena</th><th>Zaliha</th><th>Status</th></tr></thead><tbody>{products.map((product) => <tr key={product.id}><td><div className="admin-product-cell"><span style={{ background: product.stock.quantity <= 10 ? "var(--peach)" : "var(--acid-soft)" }} /><strong>{product.name}</strong></div></td><td>{brandById[product.brandId].name}</td><td>{product.category.replaceAll("-", " ")}</td><td>{formatMoney(product.priceRsd * 100)}</td><td>{product.stock.quantity}</td><td><span className={`status-pill status-pill--${product.stock.status === "nema-na-stanju" ? "cancelled" : product.stock.status === "malo-na-stanju" ? "pending" : "complete"}`}>{product.stock.status.replaceAll("-", " ")}</span></td></tr>)}</tbody></table></div></section>}
+
+        {activeView === "academy" && <section className="admin-module admin-orders-module"><div className="admin-module__head"><div><span>Learning commerce</span><h2>Programi i lekcije</h2></div><Link className="button button--dark" href="/academy">Otvori Akademiju <ArrowUpRight size={15} /></Link></div><div className="admin-course-list">{courses.map((course) => <article key={course.id}><span style={{ background: course.accent }}><GraduationCap /></span><div><small>{course.eyebrow}</small><strong>{course.title}</strong><p>{courseLessonCount(course)} lekcija · {courseDuration(course)} min · {course.priceRsd === 0 ? "besplatno" : formatMoney(course.priceRsd * 100)}</p></div><div><strong>{course.featured ? "Istaknuto" : "Objavljeno"}</strong><small>{course.modules.length} modula</small></div><button aria-label={`Uredi ${course.title}`}><ChevronRight /></button></article>)}</div></section>}
+
+        {activeView === "community" && <section className="admin-module admin-orders-module"><div className="admin-module__head"><div><span>Moderation queue · 0 prijava</span><h2>Diskusije i community health</h2></div><Link className="button button--dark" href="/community">Otvori Club <ArrowUpRight size={15} /></Link></div><div className="admin-community-kpis"><article><span>Aktivni članovi</span><strong>1.284</strong><small>showroom metrika</small></article><article><span>Odgovor eksperta</span><strong>2h 14m</strong><small>prosečno vreme</small></article><article><span>Prijavljeni sadržaj</span><strong>0.6%</strong><small>poslednjih 30 dana</small></article></div><div className="admin-table-wrap"><table className="admin-data-table"><thead><tr><th>Tema</th><th>Autor</th><th>Prostor</th><th>Odgovori</th><th>Status</th></tr></thead><tbody>{communitySeedPosts.map((post) => <tr key={post.id}><td><strong>{post.title}</strong></td><td>{post.authorName}</td><td>{post.spaceId}</td><td>{post.replies}</td><td><span className="status-pill status-pill--complete">objavljeno</span></td></tr>)}</tbody></table></div></section>}
 
         {activeView === "customers" && <section className="admin-customer-view"><div className="admin-customer-hero"><span><Sparkles /></span><div><p className="eyebrow">Customer intelligence</p><h2>{customers} profila kože u razvoju.</h2><p>Skin check pretvara anonimnu kupovinu u kontekst: cilj, osetljivost, iskustvo sa aktivima i realan broj koraka.</p></div></div><div className="admin-customer-grid"><article><span>Najčešći cilj</span><strong>Hidratacija</strong><small>31% skin check rezultata</small></article><article><span>Najčešća rutina</span><strong>Mirna barijera</strong><small>24 sačuvana plana</small></article><article><span>Repeat rate</span><strong>28.6%</strong><small>+4.2% u odnosu na jul</small></article></div></section>}
       </div>

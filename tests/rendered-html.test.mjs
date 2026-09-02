@@ -113,7 +113,7 @@ test("health API has a machine-readable degraded mode without D1", async () => {
   assert.notEqual(body, null);
 });
 
-for (const path of ["/api/orders", "/api/routines", "/api/reviews", "/api/admin/overview"]) {
+for (const path of ["/api/orders", "/api/routines", "/api/reviews", "/api/admin/overview", "/api/learning", "/api/community"]) {
   test(`${path} returns a machine-readable read response`, async () => {
     worker ??= await loadBuiltWorker();
     const response = await fetchFromWorker(worker, path, {
@@ -128,7 +128,7 @@ for (const path of ["/api/orders", "/api/routines", "/api/reviews", "/api/admin/
   });
 }
 
-for (const path of ["/api/newsletter", "/api/orders", "/api/routines", "/api/reviews"]) {
+for (const path of ["/api/newsletter", "/api/orders", "/api/routines", "/api/reviews", "/api/learning", "/api/community"]) {
   test(`${path} rejects an empty write without a server error`, async () => {
     worker ??= await loadBuiltWorker();
     const response = await fetchFromWorker(worker, path, {

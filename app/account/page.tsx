@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Heart, LoaderCircle, PackageCheck, Sparkles, UserRound } from "lucide-react";
+import { ArrowRight, BookOpen, Heart, LoaderCircle, MessageCircle, PackageCheck, Play, Sparkles, UserRound } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { useCommerce } from "@/components/commerce-store";
+import { useLearning } from "@/components/learning-store";
+import { CourseProgress } from "@/components/course-progress";
+import { courses } from "@/lib/data";
 
 type OrderSummary = {
   id: string;
@@ -34,6 +37,7 @@ function formatMoney(minorUnits: number, currency: string) {
 
 export default function AccountPage() {
   const { cartCount, routine, wishlist } = useCommerce();
+  const { enrolledCourseIds, completedLessonIds, skinBlueprint } = useLearning();
   const [orders, setOrders] = useState<OrderSummary[]>([]);
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -45,9 +49,10 @@ export default function AccountPage() {
     setError("");
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email") ?? "").trim();
+    const orderNumber = String(form.get("orderNumber") ?? "").trim();
 
     try {
-      const response = await fetch(`/api/orders?email=${encodeURIComponent(email)}&limit=20`);
+      const response = await fetch(`/api/orders?email=${encodeURIComponent(email)}&orderNumber=${encodeURIComponent(orderNumber)}&limit=20`);
       const payload = (await response.json()) as {
         ok: boolean;
         orders?: OrderSummary[];
@@ -70,19 +75,17 @@ export default function AccountPage() {
           <p className="eyebrow">Tvoj prostor</p>
           <h1 className="page-title">Moj EQUA.</h1>
         </div>
-        <p>
-          U MVP fazi ovde su objedinjene sačuvana rutina, lista želja i pronalaženje
-          porudžbina putem email adrese.
-        </p>
+        <p>Jedan prostor za profil kože, video programe, rutinu, kupovine i razgovore iz EQUA Club zajednice.</p>
       </section>
 
       <div className="account-grid">
         <aside className="account-card account-profile">
           <UserRound size={34} aria-hidden="true" />
-          <p className="eyebrow">Gost profil</p>
-          <h2>Tvoja nega, na jednom mestu.</h2>
-          <p>Prijava i trajni korisnički profili dolaze u sledećoj fazi.</p>
+          <p className="eyebrow">Demo profil · Ana</p>
+          <h2>Tvoja nega ima memoriju.</h2>
+          <p>U ovoj MVP demonstraciji napredak i profil ostaju na ovom uređaju, dok D1 backend beleži ključne događaje.</p>
           <Link className="text-link" href="/quiz">Osveži skin check <ArrowRight size={16} /></Link>
+          <nav className="account-quick-nav" aria-label="Moj EQUA prečice"><Link href="/academy"><BookOpen /> Moji programi</Link><Link href="/routine"><Sparkles /> Moja rutina</Link><Link href="/community"><MessageCircle /> Moje diskusije</Link></nav>
         </aside>
 
         <div>
@@ -99,16 +102,34 @@ export default function AccountPage() {
               <PackageCheck size={20} aria-hidden="true" />
               <div><strong>{cartCount}</strong><br /><small>proizvoda u korpi</small></div>
             </article>
+            <article className="account-stat">
+              <BookOpen size={20} aria-hidden="true" />
+              <div><strong>{completedLessonIds.length}</strong><br /><small>završenih lekcija</small></div>
+            </article>
           </div>
+
+          <section className="account-card account-blueprint" style={{ marginTop: 12 }}>
+            <div><p className="eyebrow">Skin Blueprint</p><h2>{skinBlueprint?.routineName ?? "Tvoj profil čeka Skin Check."}</h2><p>{skinBlueprint?.primarySignal ?? "Odgovori na nekoliko pitanja i dobićeš objašnjen 30-dnevni plan, ne samo listu proizvoda."}</p></div>
+            <Link className="button button--ghost" href="/quiz">{skinBlueprint ? "Osveži rezultat" : "Pokreni Skin Check"} <ArrowRight size={16} /></Link>
+          </section>
+
+          <section className="account-card" style={{ marginTop: 12 }}>
+            <div className="account-section-head"><div><p className="eyebrow">Moja Akademija</p><h2>Nastavi gde si stao/la.</h2></div><Link className="text-link" href="/academy">Svi programi <ArrowRight size={14} /></Link></div>
+            <div className="account-courses">{courses.filter((course) => enrolledCourseIds.includes(course.id)).length ? courses.filter((course) => enrolledCourseIds.includes(course.id)).map((course) => <article key={course.id}><div><span>{course.eyebrow}</span><h3>{course.title}</h3></div><CourseProgress course={course} /><Link className="button button--dark" href={`/academy/${course.slug}`}><Play size={15} /> Nastavi</Link></article>) : <div className="account-empty"><BookOpen /><div><strong>Još nema upisanih programa.</strong><p>Skin Barrier Reset je besplatan i spreman za početak.</p></div><Link className="button button--dark" href="/academy/skin-barrier-reset">Upiši program</Link></div>}</div>
+          </section>
 
           <section className="account-card" style={{ marginTop: 12 }}>
             <p className="eyebrow">Porudžbine</p>
             <h2>Pronađi prethodne kupovine</h2>
-            <p>Unesi istu email adresu koju si koristio/la pri poručivanju.</p>
+            <p>Za bezbedan guest pregled unesi email i broj konkretne porudžbine. Prijavljeni nalog ih povezuje automatski.</p>
             <form className="checkout-form" onSubmit={findOrders}>
               <div className="form-field form-field--full">
                 <label htmlFor="account-email">Email adresa</label>
                 <input id="account-email" name="email" type="email" autoComplete="email" required />
+              </div>
+              <div className="form-field form-field--full">
+                <label htmlFor="account-order">Broj porudžbine</label>
+                <input id="account-order" name="orderNumber" placeholder="ZK-20260902-XXXXXXXX" autoCapitalize="characters" required />
               </div>
               {error && <p className="form-field--full" role="alert">{error}</p>}
               <button className="button button--dark form-field--full" type="submit" disabled={loading}>

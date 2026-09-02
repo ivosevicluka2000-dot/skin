@@ -97,5 +97,67 @@ export const runtimeSchemaStatements = [
   )`,
   `CREATE INDEX IF NOT EXISTS idx_event_log_event_type_created_at
    ON event_log (event_type, created_at)`,
+  `CREATE TABLE IF NOT EXISTS course_enrollments (
+    id TEXT PRIMARY KEY NOT NULL,
+    owner_id TEXT NOT NULL,
+    course_id TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'active',
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS idx_course_enrollments_owner_course
+   ON course_enrollments (owner_id, course_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_course_enrollments_course_status
+   ON course_enrollments (course_id, status)`,
+  `CREATE TABLE IF NOT EXISTS lesson_progress (
+    id TEXT PRIMARY KEY NOT NULL,
+    owner_id TEXT NOT NULL,
+    course_id TEXT NOT NULL,
+    lesson_id TEXT NOT NULL,
+    progress_seconds INTEGER NOT NULL DEFAULT 0 CHECK (progress_seconds >= 0),
+    completed INTEGER NOT NULL DEFAULT 0,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS idx_lesson_progress_owner_lesson
+   ON lesson_progress (owner_id, lesson_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_lesson_progress_owner_course
+   ON lesson_progress (owner_id, course_id)`,
+  `CREATE TABLE IF NOT EXISTS quiz_results (
+    id TEXT PRIMARY KEY NOT NULL,
+    owner_id TEXT NOT NULL,
+    quiz_version TEXT NOT NULL DEFAULT '2026-09',
+    routine_id TEXT NOT NULL,
+    routine_name TEXT NOT NULL,
+    primary_signal TEXT NOT NULL,
+    answers_json TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_quiz_results_owner_created_at
+   ON quiz_results (owner_id, created_at)`,
+  `CREATE TABLE IF NOT EXISTS community_posts (
+    id TEXT PRIMARY KEY NOT NULL,
+    owner_id TEXT NOT NULL,
+    space_id TEXT NOT NULL,
+    author_name TEXT NOT NULL,
+    title TEXT NOT NULL,
+    body TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'published',
+    like_count INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_community_posts_space_status_created
+   ON community_posts (space_id, status, created_at)`,
+  `CREATE TABLE IF NOT EXISTS community_comments (
+    id TEXT PRIMARY KEY NOT NULL,
+    post_id TEXT NOT NULL REFERENCES community_posts(id) ON DELETE CASCADE,
+    owner_id TEXT NOT NULL,
+    author_name TEXT NOT NULL,
+    body TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'published',
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_community_comments_post_status_created
+   ON community_comments (post_id, status, created_at)`,
   "PRAGMA optimize",
 ] as const;

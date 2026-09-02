@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { Geist } from "next/font/google";
 import { CommerceProvider } from "@/components/commerce-store";
+import { LearningProvider } from "@/components/learning-store";
 import { SiteShell } from "@/components/site-shell";
 import "./globals.css";
 
@@ -10,11 +10,8 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-export async function generateMetadata(): Promise<Metadata> {
-  const requestHeaders = await headers();
-  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
-  const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
-  const origin = `${protocol}://${host}`;
+export function generateMetadata(): Metadata {
+  const origin = "https://equa-skin-lab.ivosevicluka2000.chatgpt.site";
   const socialImage = `${origin}/og.png`;
 
   return {
@@ -24,13 +21,13 @@ export async function generateMetadata(): Promise<Metadata> {
       template: "%s — EQUA",
     },
     description:
-      "Personalizovane rutine, stručni vodiči i pažljivo odabrana nega kože — povezani u jedno iskustvo.",
+      "Video programi, Skin Blueprint, stručni vodiči, zajednica i pažljivo odabrana nega kože — povezani u jedno iskustvo.",
     openGraph: {
       type: "website",
       locale: "sr_RS",
       siteName: "EQUA",
       title: "EQUA — pametnija nega kože",
-      description: "Tvoja koža nije kategorija. Složi rutinu koja počinje kontekstom, ne trendom.",
+      description: "Razumi kožu, nauči rutinu i kupuj proizvode u pravom kontekstu.",
       images: [{ url: socialImage, width: 1200, height: 630, alt: "EQUA — Tvoja koža nije kategorija." }],
     },
     twitter: {
@@ -51,7 +48,9 @@ export default function RootLayout({
     <html lang="sr-Latn">
       <body className={`${geistSans.variable} antialiased`}>
         <CommerceProvider>
-          <SiteShell>{children}</SiteShell>
+          <LearningProvider>
+            <SiteShell>{children}</SiteShell>
+          </LearningProvider>
         </CommerceProvider>
       </body>
     </html>

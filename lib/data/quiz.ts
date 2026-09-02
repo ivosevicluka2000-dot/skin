@@ -203,6 +203,31 @@ export const quizQuestions: readonly QuizQuestion[] = [
     ],
   },
   {
+    id: "current-routine",
+    title: "Kako danas izgleda tvoja rutina?",
+    helper: "Ovo nam pomaže da ne dupliramo aktivne korake.",
+    type: "single",
+    required: true,
+    answers: [
+      { id: "current-basic", label: "Čistač, krema i SPF", description: "Stabilna osnova bez ciljanog aktiva.", scores: { balans: 2, "mirna-barijera": 1 } },
+      { id: "current-active", label: "Već koristim kiseline ili retinoid", description: "Imam najmanje jedan aktivni tretman.", scores: { "age-support": 1, "cista-koza": 1 } },
+      { id: "current-many", label: "Koristim mnogo proizvoda", description: "Teško mi je da znam šta zapravo radi.", scores: { "mirna-barijera": 2, balans: 1 } },
+      { id: "current-none", label: "Nemam ustaljenu rutinu", scores: { balans: 2, "duboka-hidratacija": 1 } },
+    ],
+  },
+  {
+    id: "budget",
+    title: "Koji budžet želiš da rutina poštuje?",
+    helper: "Rezultat ostaje fokusiran na što manje dobro izabranih proizvoda.",
+    type: "single",
+    required: true,
+    answers: [
+      { id: "budget-smart", label: "Pametan minimum", description: "Do tri ključna proizvoda.", scores: { balans: 2 } },
+      { id: "budget-balanced", label: "Balans cena i tekstura", description: "Otvoren/a sam za četiri koraka.", scores: { "duboka-hidratacija": 1, "ujednacen-ten": 1 } },
+      { id: "budget-premium", label: "Važan mi je kompletan ritual", scores: { "age-support": 1, "cista-koza": 1 } },
+    ],
+  },
+  {
     id: "pregnancy",
     title: "Da li si trudna, dojiš ili trenutno izbegavaš retinoide?",
     helper: "Ovo pitanje služi da iz rezultata isključimo retinal.",

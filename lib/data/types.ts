@@ -224,6 +224,8 @@ export type QuizQuestionId =
   | "sensitivity"
   | "experience"
   | "routine-length"
+  | "current-routine"
+  | "budget"
   | "spf-habit"
   | "pregnancy";
 
@@ -249,4 +251,58 @@ export interface QuizRecommendation {
   answerIds: string[];
   excludedProductIds: ProductId[];
   safetyMessages: string[];
+}
+
+export type CourseLevel = "početni" | "srednji";
+
+export interface CourseLesson {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string;
+  durationMinutes: number;
+  preview: boolean;
+  image: string;
+  productIds: ProductId[];
+  chapters: Array<{ time: string; label: string }>;
+  checklist: string[];
+  transcript: string[];
+}
+
+export interface CourseModule {
+  id: string;
+  title: string;
+  summary: string;
+  lessons: CourseLesson[];
+}
+
+export interface Course {
+  id: string;
+  slug: string;
+  title: string;
+  eyebrow: string;
+  description: string;
+  outcome: string;
+  instructor: string;
+  instructorRole: string;
+  level: CourseLevel;
+  priceRsd: number;
+  includedWith?: ProductId[];
+  image: string;
+  accent: string;
+  featured: boolean;
+  modules: CourseModule[];
+}
+
+export interface CommunityPost {
+  id: string;
+  spaceId: string;
+  authorName: string;
+  authorRole: string;
+  title: string;
+  body: string;
+  replies: number;
+  likes: number;
+  createdAt: string;
+  tags: string[];
 }
