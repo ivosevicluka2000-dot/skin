@@ -19,6 +19,7 @@ const requiredPages = [
   "app/account/page.tsx",
   "app/admin/page.tsx",
   "app/academy/page.tsx",
+  "app/academy/programs/page.tsx",
   "app/academy/[slug]/page.tsx",
   "app/academy/[slug]/[lesson]/page.tsx",
   "app/community/page.tsx",
@@ -92,9 +93,10 @@ test("ships the complete hi-fi commerce path", async () => {
 });
 
 test("ships the connected learning-commerce path", async () => {
-  const [home, academy, course, lesson, account, community, learningApi, memberGate, memberApi] = await Promise.all([
+  const [home, academy, programLibrary, course, lesson, account, community, learningApi, memberGate, memberApi] = await Promise.all([
     read("components/home-experience.tsx"),
-    read("app/academy/page.tsx"),
+    read("components/academy-experience.tsx"),
+    read("components/program-library.tsx"),
     read("app/academy/[slug]/page.tsx"),
     read("components/lesson-experience.tsx"),
     read("app/account/page.tsx"),
@@ -105,6 +107,9 @@ test("ships the connected learning-commerce path", async () => {
   ]);
   assert.match(home, /EQUA Akademija/);
   assert.match(academy, /courseLessonCount/);
+  assert.match(academy, /academy-hub/);
+  assert.match(programLibrary, /Pretraži programe/);
+  assert.match(programLibrary, /Svi nivoi/);
   assert.match(course, /Curriculum|curriculum/i);
   assert.match(lesson, /Dodaj celu rutinu/);
   assert.match(lesson, /completeLesson/);

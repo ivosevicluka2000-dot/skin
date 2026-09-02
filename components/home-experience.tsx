@@ -133,7 +133,7 @@ export function HomeExperience({ concerns, products, articles, courses }: Props)
 
       <section className="quiz-banner">
         <div className="quiz-banner__copy">
-          <p className="eyebrow">Skin check · 7 pitanja · oko 2 min</p>
+          <p className="eyebrow">Skin check · 9 pitanja · oko 3 min</p>
           <h2 className="section-title">Ne treba ti više proizvoda. Treba ti bolji redosled.</h2>
           <p>Odgovori na nekoliko pitanja i dobićeš bezbednu AM/PM rutinu koju možeš da menjaš, sačuvaš i dodaš u korpu.</p>
           <Link className="button button--dark" href="/quiz">Pokreni skin check <Sparkles size={17} /></Link>

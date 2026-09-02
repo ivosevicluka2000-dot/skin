@@ -9,6 +9,7 @@ export const staticPageContract = [
   { path: "/account", name: "account" },
   { path: "/admin", name: "admin" },
   { path: "/academy", name: "academy" },
+  { path: "/academy/programs", name: "academy program library" },
   { path: "/community", name: "community" },
 ];
 

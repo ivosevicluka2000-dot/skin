@@ -116,7 +116,7 @@ export default function AccountPage() {
           </section>
 
           <section className="account-card" style={{ marginTop: 12 }}>
-            <div className="account-section-head"><div><p className="eyebrow">Moja Akademija</p><h2>Nastavi gde si stao/la.</h2></div><Link className="text-link" href="/academy">Svi programi <ArrowRight size={14} /></Link></div>
+            <div className="account-section-head"><div><p className="eyebrow">Moja Akademija</p><h2>Nastavi gde si stao/la.</h2></div><Link className="text-link" href="/academy/programs">Svi programi <ArrowRight size={14} /></Link></div>
             <div className="account-courses">{courses.filter((course) => enrolledCourseIds.includes(course.id)).length ? courses.filter((course) => enrolledCourseIds.includes(course.id)).map((course) => <article key={course.id}><div><span>{course.eyebrow}</span><h3>{course.title}</h3></div><CourseProgress course={course} /><Link className="button button--dark" href={`/academy/${course.slug}`}><Play size={15} /> Nastavi</Link></article>) : <div className="account-empty"><BookOpen /><div><strong>Još nema upisanih programa.</strong><p>Skin Barrier Reset je besplatan i spreman za početak.</p></div><Link className="button button--dark" href="/academy/skin-barrier-reset">Upiši program</Link></div>}</div>
           </section>
 

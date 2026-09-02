@@ -23,7 +23,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
   return (
     <MemberGate returnTo={`/academy/${course.slug}`} area="academy">
     <div className="course-page">
-      <nav className="breadcrumbs" aria-label="Putanja"><Link href="/academy"><ArrowLeft size={13} /> Akademija</Link><span>/</span><span>{course.title}</span></nav>
+      <nav className="breadcrumbs" aria-label="Putanja"><Link href="/academy/programs"><ArrowLeft size={13} /> Programi</Link><span>/</span><span>{course.title}</span></nav>
       <section className="course-hero" style={{ "--course-accent": course.accent } as React.CSSProperties}>
         <div className="course-hero__copy"><p className="eyebrow">{course.eyebrow}</p><h1>{course.title}</h1><p className="course-hero__lead">{course.description}</p><div className="course-facts"><span><Clock3 /> {courseDuration(course)} min</span><span><Play /> {courseLessonCount(course)} lekcija</span><span><UserRound /> {course.level}</span></div><div className="course-hero__actions"><CourseEnrollButton courseId={course.id} firstLessonHref={`/academy/${course.slug}/${firstLesson.slug}`} free={course.priceRsd === 0} /><strong>{price}</strong></div><CourseProgress course={course} /></div>
         <div className="course-hero__visual"><img src={course.image} alt={`${course.title} program`} width={1800} height={1126} /><span className="course-play"><Play fill="currentColor" /></span><div><small>Vodi program</small><strong>{course.instructor}</strong><span>{course.instructorRole}</span></div></div>

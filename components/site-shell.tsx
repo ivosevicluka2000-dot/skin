@@ -138,7 +138,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={pathname === item.href ? "is-active" : ""}
+                className={pathname === item.href || pathname.startsWith(`${item.href}/`) ? "is-active" : ""}
               >
                 {item.label}
               </Link>
