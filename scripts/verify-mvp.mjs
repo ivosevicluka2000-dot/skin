@@ -20,9 +20,9 @@ function run(command, args) {
   });
 }
 
-const [major, minor] = process.versions.node.split(".").map(Number);
-if (major < 20 || (major === 20 && minor < 9)) {
-  throw new Error(`Node 20.9+ is required; current runtime is ${process.versions.node}`);
+const [major] = process.versions.node.split(".").map(Number);
+if (major !== 24) {
+  throw new Error(`Node 24.x is required; current runtime is ${process.versions.node}`);
 }
 
 if (shouldBuild) await run("npm", ["run", "build"]);

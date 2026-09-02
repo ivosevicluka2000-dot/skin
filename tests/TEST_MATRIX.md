@@ -4,7 +4,7 @@
 
 | Area | Checks | Gate |
 |---|---|---|
-| Build/runtime | Next.js production build and Node 20.9+ | Must pass |
+| Build/runtime | Next.js production build and Node 24.x | Must pass |
 | Route smoke | `/`, `/academy`, `/community`, `/shop`, `/journal`, `/ingredients`, `/quiz`, `/routine`, `/cart`, `/account`, `/admin` | HTTP 200 + HTML |
 | Dynamic routes | Discover and open one linked course, lesson, product, article, and concern | HTTP 200 + HTML |
 | Document quality | Serbian `lang`, unique H1, title, meta description, main landmark | Must pass |

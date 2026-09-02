@@ -36,7 +36,7 @@ Durable tables cover newsletter signups, orders and line items, saved routines, 
 
 ## Development
 
-Requires Node.js `>=20.9.0`.
+Requires Node.js `24.x` to match the Vercel production runtime.
 
 ```bash
 npm install
