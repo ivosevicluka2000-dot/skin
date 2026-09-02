@@ -124,7 +124,7 @@ export function routeError(error: unknown): Response {
         ok: false,
         error: {
           code: "DATABASE_UNAVAILABLE",
-          message: "The service is warming up. Please try again shortly.",
+          message: "Supabase baza još nije povezana. Pokušajte ponovo kasnije.",
         },
       },
       503,
