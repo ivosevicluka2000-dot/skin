@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, BookOpen, Check, LockKeyhole, MessageCircle, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, LockKeyhole, MessageCircle, Sparkles } from "lucide-react";
 import { useEffect, type FormEvent } from "react";
 import { useMember } from "./member-store";
 
@@ -30,16 +30,14 @@ export function MemberJoinExperience({ returnTo }: { returnTo: string }) {
       </section>
       <section className="join-panel join-panel--form">
         <Link className="join-back" href="/"><ArrowLeft /> Nazad</Link>
-        <div className="join-form-wrap"><span className="join-lock"><LockKeyhole /></span><p className="eyebrow">Registracija člana</p><h2>Dobro došao/la u EQUA.</h2><p>Za ovu MVP verziju dovoljno je da napraviš demo članstvo na uređaju.</p>
+        <div className="join-form-wrap"><span className="join-lock"><LockKeyhole /></span><p className="eyebrow">Registracija člana</p><h2>Dobro došao/la u EQUA.</h2><p>Za ovu MVP verziju dovoljno je da napraviš članstvo na uređaju.</p>
           <form onSubmit={submit}>
             <label>Ime i prezime<input name="name" autoComplete="name" placeholder="Ana Jovanović" required minLength={2} /></label>
             <label>Email adresa<input name="email" type="email" autoComplete="email" placeholder="ana@email.rs" required /></label>
             <label className="join-consent"><input name="terms" type="checkbox" required /><span>Prihvatam uslove korišćenja naloga. Marketing saglasnost ostaje odvojena.</span></label>
             <button className="button button--dark button--full" type="submit">Napravi članstvo <ArrowRight /></button>
           </form>
-          <div className="join-divider"><span>ili</span></div>
-          <a className="button button--ghost button--full" href={`/signin-with-chatgpt?return_to=${encodeURIComponent(returnTo)}`} target="_top"><Check /> Nastavi sa ChatGPT nalogom</a>
-          <small>Hosted verzija koristi bezбедan postojeći identitet. Demo registracija služi lokalnom MVP prikazu.</small>
+          <small>Članstvo se u ovoj MVP verziji bezbedno čuva samo na ovom uređaju.</small>
         </div>
       </section>
     </div>

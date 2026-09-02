@@ -107,7 +107,7 @@ test("unknown routes return a real not-found response", async () => {
   assert.doesNotMatch(html, /Internal Server Error/i);
 });
 
-test("health API has a machine-readable degraded mode without D1", async () => {
+test("health API has a machine-readable degraded mode without Postgres", async () => {
   worker ??= await loadBuiltWorker();
   const response = await fetchFromWorker(worker, "/api/health", {
     accept: "application/json",

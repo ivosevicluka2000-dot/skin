@@ -1,13 +1,11 @@
-PRAGMA foreign_keys = ON;
-
 CREATE TABLE IF NOT EXISTS newsletter_signups (
   id TEXT PRIMARY KEY NOT NULL,
   email TEXT NOT NULL,
   first_name TEXT,
   source TEXT NOT NULL DEFAULT 'website',
   consent INTEGER NOT NULL DEFAULT 1,
-  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_newsletter_signups_email
@@ -32,8 +30,8 @@ CREATE TABLE IF NOT EXISTS orders (
   currency TEXT NOT NULL DEFAULT 'RSD',
   status TEXT NOT NULL DEFAULT 'pending',
   notes TEXT,
-  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_order_number
@@ -55,7 +53,7 @@ CREATE TABLE IF NOT EXISTS order_items (
   quantity INTEGER NOT NULL CHECK (quantity > 0),
   unit_price_cents INTEGER NOT NULL CHECK (unit_price_cents >= 0),
   line_total_cents INTEGER NOT NULL CHECK (line_total_cents >= 0),
-  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS idx_order_items_order_id
@@ -70,8 +68,8 @@ CREATE TABLE IF NOT EXISTS saved_routines (
   items_json TEXT NOT NULL DEFAULT '[]',
   total_cents INTEGER NOT NULL DEFAULT 0 CHECK (total_cents >= 0),
   currency TEXT NOT NULL DEFAULT 'RSD',
-  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CHECK (email IS NOT NULL OR session_id IS NOT NULL)
 );
 
@@ -91,8 +89,8 @@ CREATE TABLE IF NOT EXISTS reviews (
   body TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'pending',
   verified_purchase INTEGER NOT NULL DEFAULT 0,
-  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS idx_reviews_product_status_created_at
@@ -104,10 +102,82 @@ CREATE TABLE IF NOT EXISTS event_log (
   subject_type TEXT,
   subject_id TEXT,
   payload_json TEXT NOT NULL DEFAULT '{}',
-  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS idx_event_log_event_type_created_at
 ON event_log (event_type, created_at);
 
-PRAGMA optimize;
+CREATE TABLE IF NOT EXISTS course_enrollments (
+  id TEXT PRIMARY KEY NOT NULL,
+  owner_id TEXT NOT NULL,
+  course_id TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'active',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_course_enrollments_owner_course
+ON course_enrollments (owner_id, course_id);
+
+CREATE INDEX IF NOT EXISTS idx_course_enrollments_course_status
+ON course_enrollments (course_id, status);
+
+CREATE TABLE IF NOT EXISTS lesson_progress (
+  id TEXT PRIMARY KEY NOT NULL,
+  owner_id TEXT NOT NULL,
+  course_id TEXT NOT NULL,
+  lesson_id TEXT NOT NULL,
+  progress_seconds INTEGER NOT NULL DEFAULT 0 CHECK (progress_seconds >= 0),
+  completed INTEGER NOT NULL DEFAULT 0,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_lesson_progress_owner_lesson
+ON lesson_progress (owner_id, lesson_id);
+
+CREATE INDEX IF NOT EXISTS idx_lesson_progress_owner_course
+ON lesson_progress (owner_id, course_id);
+
+CREATE TABLE IF NOT EXISTS quiz_results (
+  id TEXT PRIMARY KEY NOT NULL,
+  owner_id TEXT NOT NULL,
+  quiz_version TEXT NOT NULL DEFAULT '2026-09',
+  routine_id TEXT NOT NULL,
+  routine_name TEXT NOT NULL,
+  primary_signal TEXT NOT NULL,
+  answers_json TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_quiz_results_owner_created_at
+ON quiz_results (owner_id, created_at);
+
+CREATE TABLE IF NOT EXISTS community_posts (
+  id TEXT PRIMARY KEY NOT NULL,
+  owner_id TEXT NOT NULL,
+  space_id TEXT NOT NULL,
+  author_name TEXT NOT NULL,
+  title TEXT NOT NULL,
+  body TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'published',
+  like_count INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_community_posts_space_status_created
+ON community_posts (space_id, status, created_at);
+
+CREATE TABLE IF NOT EXISTS community_comments (
+  id TEXT PRIMARY KEY NOT NULL,
+  post_id TEXT NOT NULL REFERENCES community_posts(id) ON DELETE CASCADE,
+  owner_id TEXT NOT NULL,
+  author_name TEXT NOT NULL,
+  body TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'published',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_community_comments_post_status_created
+ON community_comments (post_id, status, created_at);

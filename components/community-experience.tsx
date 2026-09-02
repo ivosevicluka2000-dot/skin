@@ -23,7 +23,7 @@ export function CommunityExperience() {
       if (!response.ok) return;
       const payload = await response.json() as { posts?: ApiPost[] };
       setRemotePosts((payload.posts ?? []).map((post) => ({ id: post.id, spaceId: post.spaceId, authorName: post.authorName, authorRole: "EQUA član", title: post.title, body: post.body, replies: post.replyCount, likes: post.likeCount, createdAt: post.createdAt, tags: [post.spaceId] })));
-    } catch { /* Seed conversations keep the community useful during local D1 warm-up. */ }
+    } catch { /* Seed conversations keep the community useful before a production database is connected. */ }
   }
 
   useEffect(() => { const timer = window.setTimeout(() => void loadPosts(), 0); return () => window.clearTimeout(timer); }, []);

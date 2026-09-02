@@ -21,7 +21,7 @@ Custom full-stack skincare learning-commerce platform built without Shopify. The
 
 ## Backend
 
-Cloudflare D1 is initialized lazily in preview and production. All monetary values are stored as integer minor units.
+The production backend uses Supabase Postgres through its serverless transaction pooler. The connection string is provided to Vercel as `SUPABASE_DATABASE_URL` (with `DATABASE_URL` supported as a fallback). The storefront and device-level MVP flows work without a database; durable writes return an explicit `503` until Supabase is connected. All monetary values are stored as integer minor units.
 
 - `POST /api/newsletter`
 - `GET|POST /api/orders`
@@ -36,7 +36,7 @@ Durable tables cover newsletter signups, orders and line items, saved routines, 
 
 ## Development
 
-Requires Node.js `>=22.13.0`.
+Requires Node.js `>=20.9.0`.
 
 ```bash
 npm install
@@ -47,3 +47,7 @@ node scripts/verify-mvp.mjs --build
 ```
 
 The verifier checks route rendering, catalog integrity, quiz safety, API degraded modes, accessibility basics, 404 handling and asset budgets.
+
+## Vercel
+
+The repository uses the standard Next.js runtime (`next build` / `next start`) and can be deployed directly to Vercel. To enable durable orders, newsletter signups, reviews, routines, learning progress and community posts, copy the Supabase **Transaction pooler** connection string into the Vercel secret `SUPABASE_DATABASE_URL`. Prepared statements are disabled for Supavisor compatibility, and the schema is initialized idempotently on the first database-backed request.

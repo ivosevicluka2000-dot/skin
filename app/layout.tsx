@@ -12,7 +12,10 @@ const geistSans = Geist({
 });
 
 export function generateMetadata(): Metadata {
-  const origin = "https://equa-skin-lab.ivosevicluka2000.chatgpt.site";
+  const productionHost = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  const origin =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    (productionHost ? `https://${productionHost}` : "http://localhost:3000");
   const socialImage = `${origin}/og.png`;
 
   return {

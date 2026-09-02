@@ -1,13 +1,15 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { access, readFile } from "node:fs/promises";
+import { access } from "node:fs/promises";
+import { createServer } from "node:net";
+import { fileURLToPath } from "node:url";
 
 const projectRoot = new URL("../../", import.meta.url);
-const workerEntry = new URL("../../dist/server/index.js", import.meta.url);
+const buildMarker = new URL("../../.next/BUILD_ID", import.meta.url);
 
 export async function hasBuiltWorker() {
   try {
-    await access(workerEntry);
+    await access(buildMarker);
     return true;
   } catch {
     return false;
@@ -18,7 +20,7 @@ export async function loadBuiltWorker() {
   assert.equal(
     await hasBuiltWorker(),
     true,
-    "Missing dist/server/index.js. Run `npm run build` before browser-free smoke tests.",
+    "Missing .next/BUILD_ID. Run `npm run build` before browser-free smoke tests.",
   );
 
   return getLocalRuntime();
@@ -154,22 +156,23 @@ export { projectRoot };
 let runtimePromise;
 let ownedRuntimeProcess;
 
-async function readExistingRuntimeUrl() {
-  try {
-    const lock = JSON.parse(await readFile(new URL("../../.vinext/dev/lock.json", import.meta.url), "utf8"));
-    const url = new URL(lock.appUrl);
-    url.hostname = "localhost";
-    const response = await fetch(new URL("/api/health", url), {
-      signal: AbortSignal.timeout(2_000),
+async function reservePort() {
+  return new Promise((resolve, reject) => {
+    const server = createServer();
+    server.once("error", reject);
+    server.listen(0, "127.0.0.1", () => {
+      const address = server.address();
+      const port = typeof address === "object" && address ? address.port : null;
+      server.close((error) => {
+        if (error) reject(error);
+        else if (port) resolve(port);
+        else reject(new Error("Could not reserve a local port for Next.js tests."));
+      });
     });
-    if (response.status < 600) return url.href;
-  } catch {
-    // No healthy retained preview; the test suite starts a temporary one below.
-  }
-  return null;
+  });
 }
 
-async function waitForRuntime(child) {
+async function waitForRuntime(child, baseUrl) {
   let output = "";
   child.stdout?.on("data", (chunk) => {
     output += chunk.toString();
@@ -180,41 +183,34 @@ async function waitForRuntime(child) {
 
   const deadline = Date.now() + 30_000;
   while (Date.now() < deadline) {
-    const printedUrl = output.match(/(?:Local:|running at)\s+(https?:\/\/[^\s]+)/i)?.[1];
-    const lockedUrl = await readExistingRuntimeUrl();
-    const candidate = lockedUrl ?? printedUrl;
-    if (candidate) {
-      const url = new URL(candidate);
-      url.hostname = "localhost";
-      try {
-        const response = await fetch(url, { signal: AbortSignal.timeout(2_000) });
-        if (response.status < 600) return url.href;
-      } catch {
-        // Runtime is still warming up.
-      }
+    try {
+      const response = await fetch(baseUrl, { signal: AbortSignal.timeout(2_000) });
+      if (response.status < 600) return baseUrl;
+    } catch {
+      // Runtime is still warming up.
     }
 
     if (child.exitCode !== null) {
-      throw new Error(`Temporary vinext runtime exited early (${child.exitCode}).\n${output}`);
+      throw new Error(`Temporary Next.js runtime exited early (${child.exitCode}).\n${output}`);
     }
     await new Promise((resolve) => setTimeout(resolve, 150));
   }
-  throw new Error(`Timed out waiting for the temporary vinext runtime.\n${output}`);
+  throw new Error(`Timed out waiting for the temporary Next.js runtime.\n${output}`);
 }
 
 async function getLocalRuntime() {
   runtimePromise ??= (async () => {
-    const existing = await readExistingRuntimeUrl();
-    if (existing) return { baseUrl: existing, owned: false };
+    const port = await reservePort();
+    const baseUrl = `http://127.0.0.1:${port}/`;
 
-    const child = spawn("npm", ["run", "dev", "--", "--port", "0"], {
-      cwd: decodeURIComponent(projectRoot.pathname),
+    const child = spawn("npm", ["run", "start", "--", "--hostname", "127.0.0.1", "--port", String(port)], {
+      cwd: fileURLToPath(projectRoot),
       env: process.env,
       stdio: ["ignore", "pipe", "pipe"],
       detached: process.platform !== "win32",
     });
     ownedRuntimeProcess = child;
-    const baseUrl = await waitForRuntime(child);
+    await waitForRuntime(child, baseUrl);
     return { baseUrl, owned: true };
   })();
   return runtimePromise;

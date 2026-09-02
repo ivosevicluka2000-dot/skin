@@ -21,8 +21,8 @@ function run(command, args) {
 }
 
 const [major, minor] = process.versions.node.split(".").map(Number);
-if (major < 22 || (major === 22 && minor < 13)) {
-  throw new Error(`Node 22.13+ is required; current runtime is ${process.versions.node}`);
+if (major < 20 || (major === 20 && minor < 9)) {
+  throw new Error(`Node 20.9+ is required; current runtime is ${process.versions.node}`);
 }
 
 if (shouldBuild) await run("npm", ["run", "build"]);

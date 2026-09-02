@@ -10,9 +10,8 @@ import {
   requiredString,
   routeError,
 } from "@/lib/server/api";
-import { eventStatement, getDatabase, stableId } from "@/lib/server/db";
+import { eventStatement, getDatabase, stableId, type SqlPreparedStatement } from "@/lib/server/db";
 import { products } from "@/lib/data/catalog";
-import { getChatGPTUser } from "@/app/chatgpt-auth";
 
 const ORDER_STATUSES = new Set(["pending", "confirmed", "processing", "shipped", "complete", "cancelled"]);
 const PAYMENT_METHODS = new Set(["cash_on_delivery", "demo_card"]);
@@ -127,7 +126,7 @@ export async function POST(request: Request): Promise<Response> {
     const selectedCurrency = currency(body.currency);
     const notes = optionalString(body.notes, "notes", 1000);
     const database = await getDatabase();
-    const statements: D1PreparedStatement[] = [
+    const statements: SqlPreparedStatement[] = [
       database
         .prepare(
           `INSERT INTO orders (
@@ -212,11 +211,10 @@ export async function POST(request: Request): Promise<Response> {
 export async function GET(request: Request): Promise<Response> {
   try {
     const url = new URL(request.url);
-    const user = await getChatGPTUser();
     const emailParam = url.searchParams.get("email");
-    const email = user?.email ?? normalizedEmail(emailParam, false);
+    const email = normalizedEmail(emailParam, false);
     const requestedOrderNumber = optionalString(url.searchParams.get("orderNumber"), "orderNumber", 40);
-    if (!user && (!email || !requestedOrderNumber)) {
+    if (!email || !requestedOrderNumber) {
       throw new ApiValidationError("Email and order number are required for guest lookup.", "orderNumber");
     }
     const status = optionalString(url.searchParams.get("status"), "status", 20);

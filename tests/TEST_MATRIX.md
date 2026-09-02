@@ -4,7 +4,7 @@
 
 | Area | Checks | Gate |
 |---|---|---|
-| Build/runtime | vinext production build; Cloudflare Worker import; Node 22+ | Must pass |
+| Build/runtime | Next.js production build and Node 20.9+ | Must pass |
 | Route smoke | `/`, `/academy`, `/community`, `/shop`, `/journal`, `/ingredients`, `/quiz`, `/routine`, `/cart`, `/account`, `/admin` | HTTP 200 + HTML |
 | Dynamic routes | Discover and open one linked course, lesson, product, article, and concern | HTTP 200 + HTML |
 | Document quality | Serbian `lang`, unique H1, title, meta description, main landmark | Must pass |
@@ -13,9 +13,9 @@
 | Seed integrity | 24 products, 6 brands, 8 concerns, 12 ingredients, 8 articles, 6 routines, 9 quiz questions, 3 courses; all references resolve | Must pass |
 | Recommendation safety | Deterministic scoring, duplicate-answer handling, pregnancy retinal exclusion | Must pass |
 | Failure handling | Unknown route returns 404, not a 500 | Must pass |
-| API contract | Health and D1-backed endpoints return JSON; degraded storage is explicit 503 | Must pass |
+| API contract | Health and Supabase-backed endpoints return JSON; degraded storage is explicit 503 | Must pass |
 | API validation | Empty writes are rejected with 4xx/503, never 500 | Must pass |
-| Persistence | D1 binding, idempotent migration, foreign keys, uniqueness and range constraints | Must pass |
+| Persistence | Optional Supabase transaction-pooler connection, idempotent migration, foreign keys, uniqueness and range constraints | Must pass |
 | Source contract | All agreed App Router pages exist; starter preview removed | Must pass |
 | Motion/keyboard/mobile nav | Reduced-motion, visible focus, and dedicated mobile-menu layout styles exist | Must pass |
 | Asset budget | JS ≤ 350 KiB gzip, CSS ≤ 110 KiB gzip, image ≤ 2 MB, video ≤ 8 MB per file | Must pass |

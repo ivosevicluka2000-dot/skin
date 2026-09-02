@@ -1,15 +1,14 @@
-// D1 is initialized lazily because preview and production resources are injected
-// at runtime by Sites. Keep every entry to exactly one prepared SQL statement.
+// The schema is initialized lazily when a Supabase Postgres connection is present.
+// Keep every entry to exactly one prepared SQL statement.
 export const runtimeSchemaStatements = [
-  "PRAGMA foreign_keys = ON",
   `CREATE TABLE IF NOT EXISTS newsletter_signups (
     id TEXT PRIMARY KEY NOT NULL,
     email TEXT NOT NULL,
     first_name TEXT,
     source TEXT NOT NULL DEFAULT 'website',
     consent INTEGER NOT NULL DEFAULT 1,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
   )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS idx_newsletter_signups_email
    ON newsletter_signups (email)`,
@@ -32,8 +31,8 @@ export const runtimeSchemaStatements = [
     currency TEXT NOT NULL DEFAULT 'RSD',
     status TEXT NOT NULL DEFAULT 'pending',
     notes TEXT,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
   )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_order_number
    ON orders (order_number)`,
@@ -51,7 +50,7 @@ export const runtimeSchemaStatements = [
     quantity INTEGER NOT NULL CHECK (quantity > 0),
     unit_price_cents INTEGER NOT NULL CHECK (unit_price_cents >= 0),
     line_total_cents INTEGER NOT NULL CHECK (line_total_cents >= 0),
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
   )`,
   `CREATE INDEX IF NOT EXISTS idx_order_items_order_id
    ON order_items (order_id)`,
@@ -64,8 +63,8 @@ export const runtimeSchemaStatements = [
     items_json TEXT NOT NULL DEFAULT '[]',
     total_cents INTEGER NOT NULL DEFAULT 0 CHECK (total_cents >= 0),
     currency TEXT NOT NULL DEFAULT 'RSD',
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CHECK (email IS NOT NULL OR session_id IS NOT NULL)
   )`,
   `CREATE INDEX IF NOT EXISTS idx_saved_routines_email_updated_at
@@ -82,8 +81,8 @@ export const runtimeSchemaStatements = [
     body TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'pending',
     verified_purchase INTEGER NOT NULL DEFAULT 0,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
   )`,
   `CREATE INDEX IF NOT EXISTS idx_reviews_product_status_created_at
    ON reviews (product_id, status, created_at)`,
@@ -93,7 +92,7 @@ export const runtimeSchemaStatements = [
     subject_type TEXT,
     subject_id TEXT,
     payload_json TEXT NOT NULL DEFAULT '{}',
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
   )`,
   `CREATE INDEX IF NOT EXISTS idx_event_log_event_type_created_at
    ON event_log (event_type, created_at)`,
@@ -102,8 +101,8 @@ export const runtimeSchemaStatements = [
     owner_id TEXT NOT NULL,
     course_id TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'active',
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
   )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS idx_course_enrollments_owner_course
    ON course_enrollments (owner_id, course_id)`,
@@ -116,7 +115,7 @@ export const runtimeSchemaStatements = [
     lesson_id TEXT NOT NULL,
     progress_seconds INTEGER NOT NULL DEFAULT 0 CHECK (progress_seconds >= 0),
     completed INTEGER NOT NULL DEFAULT 0,
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
   )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS idx_lesson_progress_owner_lesson
    ON lesson_progress (owner_id, lesson_id)`,
@@ -130,7 +129,7 @@ export const runtimeSchemaStatements = [
     routine_name TEXT NOT NULL,
     primary_signal TEXT NOT NULL,
     answers_json TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
   )`,
   `CREATE INDEX IF NOT EXISTS idx_quiz_results_owner_created_at
    ON quiz_results (owner_id, created_at)`,
@@ -143,8 +142,8 @@ export const runtimeSchemaStatements = [
     body TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'published',
     like_count INTEGER NOT NULL DEFAULT 0,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
   )`,
   `CREATE INDEX IF NOT EXISTS idx_community_posts_space_status_created
    ON community_posts (space_id, status, created_at)`,
@@ -155,9 +154,8 @@ export const runtimeSchemaStatements = [
     author_name TEXT NOT NULL,
     body TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'published',
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
   )`,
   `CREATE INDEX IF NOT EXISTS idx_community_comments_post_status_created
    ON community_comments (post_id, status, created_at)`,
-  "PRAGMA optimize",
 ] as const;

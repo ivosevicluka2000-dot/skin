@@ -6,7 +6,7 @@ export type EquaMember = {
   id: string;
   name: string;
   email: string;
-  source: "chatgpt" | "mvp";
+  source: "mvp";
 };
 
 type MemberContextValue = {
@@ -67,10 +67,9 @@ export function MemberProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signOutDemoMember = useCallback(() => {
-    if (member?.source === "chatgpt") return;
     window.localStorage.removeItem(STORAGE_KEY);
     setMember(null);
-  }, [member]);
+  }, []);
 
   const value = useMemo(() => ({ member, checking, register, signOutDemoMember }), [checking, member, register, signOutDemoMember]);
   return <MemberContext.Provider value={value}>{children}</MemberContext.Provider>;

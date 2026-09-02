@@ -132,7 +132,7 @@ test("ships the connected learning-commerce path", async () => {
   assert.match(learningApi, /quiz_results/);
   assert.match(memberGate, /Samo za članove/);
   assert.match(memberGate, /\/join\?returnTo=/);
-  assert.match(memberApi, /getChatGPTUser/);
+  assert.match(memberApi, /status:\s*401/);
 });
 
 test("does not leave placeholder anchors in route source", async () => {
@@ -159,14 +159,25 @@ test("does not leave placeholder anchors in route source", async () => {
   assert.deepEqual(offenders, [], `Placeholder href="#" found in:\n${offenders.join("\n")}`);
 });
 
-test("declares the D1 binding required by the mini backend", async () => {
-  const hosting = JSON.parse(await read(".openai/hosting.json"));
-  assert.equal(hosting.d1, "DB");
+test("uses the Vercel-native Next.js runtime and optional Supabase storage", async () => {
+  const [packageJson, database] = await Promise.all([
+    read("package.json"),
+    read("lib/server/db.ts"),
+  ]);
+  const packageData = JSON.parse(packageJson);
+  assert.equal(packageData.scripts.dev, "next dev");
+  assert.equal(packageData.scripts.build, "next build");
+  assert.equal(packageData.scripts.start, "next start");
+  assert.match(database, /from ["']postgres["']/);
+  assert.match(database, /SUPABASE_DATABASE_URL/);
+  assert.match(database, /prepare:\s*false/);
+  await assert.rejects(access(new URL(".openai/hosting.json", root)));
 });
 
 test("initial migration includes the complete durable MVP model", async () => {
   const migration = await read("db/migrations/0000_initial_mvp.sql");
-  assert.match(migration, /PRAGMA\s+foreign_keys\s*=\s*ON/i);
+  assert.doesNotMatch(migration, /PRAGMA/i);
+  assert.match(migration, /TIMESTAMPTZ/i);
 
   for (const table of [
     "newsletter_signups",

@@ -4,7 +4,7 @@ import { access, readFile, readdir, stat } from "node:fs/promises";
 import test from "node:test";
 
 const root = new URL("../", import.meta.url);
-const clientAssets = new URL("dist/client/assets/", root);
+const clientAssets = new URL(".next/static/", root);
 const publicRoot = new URL("public/", root);
 
 async function exists(url) {
@@ -29,7 +29,7 @@ async function filesBelow(directory) {
 
 test("keeps individual browser bundles within a practical MVP budget", async (t) => {
   if (!(await exists(clientAssets))) {
-    t.skip("Run the vinext production build before checking bundle budgets");
+    t.skip("Run the Next.js production build before checking bundle budgets");
     return;
   }
 

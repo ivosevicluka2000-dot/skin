@@ -1,8 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createServer } from "vite";
-
-const root = new URL("../", import.meta.url);
+import { tsImport } from "tsx/esm/api";
 
 function assertUnique(items, label) {
   const duplicates = items.filter((value, index) => items.indexOf(value) !== index);
@@ -15,19 +13,7 @@ function assertReferences(values, valid, label) {
 }
 
 async function loadDataset() {
-  const server = await createServer({
-    root: decodeURIComponent(root.pathname),
-    configFile: false,
-    logLevel: "silent",
-    appType: "custom",
-    server: { middlewareMode: true },
-  });
-
-  try {
-    return await server.ssrLoadModule("/lib/data/index.ts");
-  } finally {
-    await server.close();
-  }
+  return tsImport("../lib/data/index.ts", import.meta.url);
 }
 
 test("seed catalog is substantial, unique, and internally connected", async () => {
