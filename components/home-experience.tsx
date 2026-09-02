@@ -1,6 +1,6 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element -- Vinext serves these checked-in, pre-compressed campaign assets directly. */
+/* eslint-disable @next/next/no-img-element -- These checked-in, pre-compressed campaign assets are served directly. */
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";

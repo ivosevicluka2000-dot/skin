@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element -- Vinext serves these checked-in, pre-compressed catalog assets directly. */
+/* eslint-disable @next/next/no-img-element -- These checked-in, pre-compressed catalog assets are served directly. */
 
 import type { Product, ProductCategory } from "@/lib/data/types";
 

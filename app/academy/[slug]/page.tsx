@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element -- checked-in course photography is served directly by Vinext. */
+/* eslint-disable @next/next/no-img-element -- Checked-in course photography is served directly. */
 
 import type { Metadata } from "next";
 import Link from "next/link";
