@@ -41,7 +41,9 @@ export default async function JournalPage({ searchParams }: { searchParams: Prom
       <section className="journal-grid" id="svi" aria-label="Svi vodiči">
         {visibleArticles.map((article, index) => (
           <Link className="article-card" href={`/journal/${article.slug}`} key={article.id}>
-            <div className="article-card__visual" aria-hidden="true">
+            <div className="article-card__visual">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={article.image} alt="" width={1200} height={800} loading={index > 1 ? "lazy" : "eager"} />
               <span className="ingredient-card__symbol" style={{ position: "absolute", left: 24, top: 18, zIndex: 2 }}>
                 {String(index + 1).padStart(2, "0")}
               </span>

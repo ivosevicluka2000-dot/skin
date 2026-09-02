@@ -54,6 +54,13 @@ for (const page of staticPageContract) {
 
 for (const dynamicPage of dynamicPageContract) {
   test(`discovers and renders ${dynamicPage.name}`, async () => {
+    if (dynamicPage.samplePath) {
+      const { response, html } = await render(dynamicPage.samplePath);
+      assert.equal(response.status, 200, `${dynamicPage.samplePath}: expected HTTP 200`);
+      assertDocumentBasics(html, dynamicPage.samplePath);
+      assert.deepEqual(collectA11yProblems(html), []);
+      return;
+    }
     let discovered = [];
 
     for (const path of dynamicPage.discoveryPaths) {

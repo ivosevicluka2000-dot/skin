@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { CommerceProvider } from "@/components/commerce-store";
 import { LearningProvider } from "@/components/learning-store";
+import { MemberProvider } from "@/components/member-store";
 import { SiteShell } from "@/components/site-shell";
 import "./globals.css";
 
@@ -48,9 +49,11 @@ export default function RootLayout({
     <html lang="sr-Latn">
       <body className={`${geistSans.variable} antialiased`}>
         <CommerceProvider>
-          <LearningProvider>
-            <SiteShell>{children}</SiteShell>
-          </LearningProvider>
+          <MemberProvider>
+            <LearningProvider>
+              <SiteShell>{children}</SiteShell>
+            </LearningProvider>
+          </MemberProvider>
         </CommerceProvider>
       </body>
     </html>

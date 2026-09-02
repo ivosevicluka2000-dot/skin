@@ -7,6 +7,7 @@ import { useCommerce } from "@/components/commerce-store";
 import { useLearning } from "@/components/learning-store";
 import { CourseProgress } from "@/components/course-progress";
 import { courses } from "@/lib/data";
+import { useMember } from "@/components/member-store";
 
 type OrderSummary = {
   id: string;
@@ -38,6 +39,7 @@ function formatMoney(minorUnits: number, currency: string) {
 export default function AccountPage() {
   const { cartCount, routine, wishlist } = useCommerce();
   const { enrolledCourseIds, completedLessonIds, skinBlueprint } = useLearning();
+  const { member } = useMember();
   const [orders, setOrders] = useState<OrderSummary[]>([]);
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -81,10 +83,10 @@ export default function AccountPage() {
       <div className="account-grid">
         <aside className="account-card account-profile">
           <UserRound size={34} aria-hidden="true" />
-          <p className="eyebrow">Demo profil · Ana</p>
+          <p className="eyebrow">{member ? `EQUA član · ${member.name}` : "Gost profil"}</p>
           <h2>Tvoja nega ima memoriju.</h2>
-          <p>U ovoj MVP demonstraciji napredak i profil ostaju na ovom uređaju, dok D1 backend beleži ključne događaje.</p>
-          <Link className="text-link" href="/quiz">Osveži skin check <ArrowRight size={16} /></Link>
+          <p>{member ? `${member.email} · Skin Blueprint, kursevi, rutina i kupovine povezani su u jednom prikazu.` : "Registruj se da otključaš Akademiju i EQUA Club i povežeš Skin Blueprint sa svojim profilom."}</p>
+          <Link className="text-link" href={member ? "/quiz" : "/join?returnTo=%2Faccount"}>{member ? "Osveži skin check" : "Registruj članstvo"} <ArrowRight size={16} /></Link>
           <nav className="account-quick-nav" aria-label="Moj EQUA prečice"><Link href="/academy"><BookOpen /> Moji programi</Link><Link href="/routine"><Sparkles /> Moja rutina</Link><Link href="/community"><MessageCircle /> Moje diskusije</Link></nav>
         </aside>
 

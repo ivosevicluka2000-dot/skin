@@ -19,7 +19,8 @@ import {
 } from "lucide-react";
 import { useRef, useState, type FormEvent } from "react";
 import { useCommerce } from "@/components/commerce-store";
-import { ProductArt } from "@/components/product-art";
+import { ProductPhoto } from "@/components/product-photo";
+import { products } from "@/lib/data";
 
 type CreatedOrder = { id: string; orderNumber: string; totalCents: number; currency: string };
 type OrderResponse = { ok: boolean; order?: CreatedOrder; error?: { message?: string } };
@@ -108,7 +109,7 @@ export default function CartPage() {
             <p className="eyebrow">01 · Pregled korpe</p><h1>Spremno za tvoj ritual.</h1>
             <div className="shipping-meter"><div><span>{freeShippingGap ? `Još ${formatRsd(freeShippingGap)} do besplatne dostave` : "Besplatna dostava je aktivirana"}</span><strong>{Math.min(100, Math.round(subtotal / 60))}%</strong></div><i><b style={{ width: `${Math.min(100, subtotal / 60)}%` }} /></i></div>
             <div className="checkout-products">
-              {cart.map(({ product, quantity }) => <article className="checkout-product" key={product.slug}><ProductArt color={product.color} label={product.brand} compact /><div><span>{product.brand} · {product.routineStep}</span><h2>{product.name}</h2><strong>{formatRsd(product.price)}</strong></div><div className="checkout-product__actions"><div className="quantity-control"><button type="button" onClick={() => setQuantity(product.slug, quantity - 1)} aria-label="Smanji količinu"><Minus size={13} /></button><b>{quantity}</b><button type="button" onClick={() => setQuantity(product.slug, quantity + 1)} aria-label="Povećaj količinu"><Plus size={13} /></button></div><button type="button" className="line-remove" onClick={() => removeFromCart(product.slug)} aria-label={`Ukloni ${product.name}`}><X size={16} /></button></div></article>)}
+              {cart.map(({ product, quantity }) => { const catalogProduct = products.find((candidate) => candidate.id === product.id); return <article className="checkout-product" key={product.slug}>{catalogProduct ? <div className="checkout-product__photo"><ProductPhoto product={catalogProduct} /></div> : <span className="checkout-product__fallback"><ShoppingBag /></span>}<div><span>{product.brand} · {product.routineStep}</span><h2>{product.name}</h2><strong>{formatRsd(product.price)}</strong></div><div className="checkout-product__actions"><div className="quantity-control"><button type="button" onClick={() => setQuantity(product.slug, quantity - 1)} aria-label="Smanji količinu"><Minus size={13} /></button><b>{quantity}</b><button type="button" onClick={() => setQuantity(product.slug, quantity + 1)} aria-label="Povećaj količinu"><Plus size={13} /></button></div><button type="button" className="line-remove" onClick={() => removeFromCart(product.slug)} aria-label={`Ukloni ${product.name}`}><X size={16} /></button></div></article>; })}
             </div>
             <div className="checkout-perks"><div><Truck /><span><strong>Dostava 1–3 dana</strong>Beograd i cela Srbija</span></div><div><ShieldCheck /><span><strong>Proveren izbor</strong>Bez nasumičnih formula</span></div></div>
             <button className="button button--dark button--full checkout-next" type="button" onClick={() => moveTo(1)}>Nastavi na dostavu <ArrowRight size={17} /></button>

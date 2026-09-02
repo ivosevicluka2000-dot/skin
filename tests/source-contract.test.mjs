@@ -84,13 +84,15 @@ test("ships the complete hi-fi commerce path", async () => {
   assert.match(checkout, /cash_on_delivery/);
   assert.match(checkout, /demo_card/);
   assert.match(checkout, /POST|fetch\(["']\/api\/orders/);
-  assert.match(admin, /\/api\/admin\/overview/);
+  assert.match(admin, /Interaktivni mockup/);
+  assert.match(admin, /ERP & CRM/);
+  assert.match(admin, /Integration hub/);
   assert.match(admin, /OrderTable/);
   assert.match(product, /ReviewPanel/);
 });
 
 test("ships the connected learning-commerce path", async () => {
-  const [home, academy, course, lesson, account, community, learningApi] = await Promise.all([
+  const [home, academy, course, lesson, account, community, learningApi, memberGate, memberApi] = await Promise.all([
     read("components/home-experience.tsx"),
     read("app/academy/page.tsx"),
     read("app/academy/[slug]/page.tsx"),
@@ -98,6 +100,8 @@ test("ships the connected learning-commerce path", async () => {
     read("app/account/page.tsx"),
     read("components/community-experience.tsx"),
     read("app/api/learning/route.ts"),
+    read("components/member-gate.tsx"),
+    read("app/api/member/route.ts"),
   ]);
   assert.match(home, /EQUA Akademija/);
   assert.match(academy, /courseLessonCount/);
@@ -108,6 +112,9 @@ test("ships the connected learning-commerce path", async () => {
   assert.match(community, /Nova tema/);
   assert.match(learningApi, /lesson_progress/);
   assert.match(learningApi, /quiz_results/);
+  assert.match(memberGate, /Samo za članove/);
+  assert.match(memberGate, /\/join\?returnTo=/);
+  assert.match(memberApi, /getChatGPTUser/);
 });
 
 test("does not leave placeholder anchors in route source", async () => {

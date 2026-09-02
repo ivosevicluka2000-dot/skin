@@ -1,157 +1,91 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element -- the admin mockup reuses checked-in catalog photography. */
+
 import Link from "next/link";
 import {
-  ArrowDownRight,
-  ArrowUpRight,
-  BarChart3,
-  Boxes,
-  ChevronRight,
-  CircleGauge,
-  ExternalLink,
-  RefreshCw,
-  Search,
-  ShoppingBag,
-  GraduationCap,
-  MessagesSquare,
-  Sparkles,
-  Users,
-  Zap,
+  Activity, ArrowRight, BarChart3, Bell, BookOpen, Boxes, ChevronDown, ChevronRight,
+  CircleGauge, ClipboardList, ExternalLink, GraduationCap, HeartHandshake, Home,
+  Layers3, Megaphone, Menu, MessageSquare, PackageCheck, PlugZap, Search, Settings,
+  ShoppingBag, Sparkles, Store, Users, X,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { brandById, communitySeedPosts, courseDuration, courseLessonCount, courses, products } from "@/lib/data";
+import { useMemo, useState, type ComponentType } from "react";
+import { articles, brandById, communitySeedPosts, courseDuration, courseLessonCount, courses, formatRsd, products } from "@/lib/data";
+import { productPhotoFor } from "@/components/product-photo";
 
-type AdminView = "overview" | "orders" | "catalog" | "academy" | "community" | "customers";
-type OrderSummary = { id: string; orderNumber: string; status: string; itemCount: number; totalCents: number; currency: string; paymentMethod: string; createdAt: string };
-type Overview = {
-  orders: number;
-  revenueCents: number;
-  pending: number;
-  customers: number;
-  routines: number;
-  subscribers: number;
-  catalogSize: number;
-  lowStock: Array<{ id: string; name: string; quantity: number; status: string }>;
-  trend: Array<{ day: string; revenueCents: number; orderCount: number }>;
-  events: Array<{ eventType: string; createdAt: string; subjectId: string | null }>;
-};
+type AdminView = "home" | "orders" | "products" | "inventory" | "customers" | "content" | "academy" | "community" | "marketing" | "analytics" | "erp";
+type NavItem = { id: AdminView; label: string; icon: ComponentType<{ size?: number }>; badge?: string };
 
-const statusLabels: Record<string, string> = { pending: "Primljena", confirmed: "Potvrđena", processing: "Pakovanje", shipped: "Poslata", complete: "Isporučena", cancelled: "Otkazana" };
-const viewLabels: Record<AdminView, string> = { overview: "Pregled", orders: "Porudžbine", catalog: "Katalog", academy: "Akademija", community: "Zajednica", customers: "Kupci" };
-const demoOrders: OrderSummary[] = [
-  { id: "demo-1", orderNumber: "EQ-1048", status: "pending", itemCount: 3, totalCents: 918_000, currency: "RSD", paymentMethod: "demo_card", createdAt: "2026-08-28 11:42:00" },
-  { id: "demo-2", orderNumber: "EQ-1047", status: "processing", itemCount: 4, totalCents: 1_296_000, currency: "RSD", paymentMethod: "cash_on_delivery", createdAt: "2026-08-28 09:18:00" },
-  { id: "demo-3", orderNumber: "EQ-1046", status: "shipped", itemCount: 2, totalCents: 668_000, currency: "RSD", paymentMethod: "demo_card", createdAt: "2026-08-27 16:05:00" },
-  { id: "demo-4", orderNumber: "EQ-1045", status: "complete", itemCount: 3, totalCents: 897_000, currency: "RSD", paymentMethod: "cash_on_delivery", createdAt: "2026-08-27 12:27:00" },
-  { id: "demo-5", orderNumber: "EQ-1044", status: "complete", itemCount: 1, totalCents: 299_000, currency: "RSD", paymentMethod: "demo_card", createdAt: "2026-08-26 18:31:00" },
+const navGroups: Array<{ label: string; items: NavItem[] }> = [
+  { label: "Prodaja", items: [
+    { id: "home", label: "Početna", icon: Home }, { id: "orders", label: "Porudžbine", icon: ShoppingBag, badge: "7" },
+    { id: "products", label: "Proizvodi", icon: Boxes }, { id: "inventory", label: "Zalihe", icon: Layers3, badge: "4" },
+    { id: "customers", label: "Kupci", icon: Users },
+  ] },
+  { label: "Iskustvo", items: [
+    { id: "content", label: "Sadržaj", icon: BookOpen }, { id: "academy", label: "Akademija", icon: GraduationCap },
+    { id: "community", label: "Zajednica", icon: MessageSquare }, { id: "marketing", label: "Marketing", icon: Megaphone },
+    { id: "analytics", label: "Analitika", icon: BarChart3 },
+  ] },
+  { label: "Sistemi", items: [{ id: "erp", label: "ERP & CRM", icon: PlugZap, badge: "Live" }] },
 ];
-const demoTrend = [38, 52, 45, 68, 61, 86, 74].map((value, index) => ({ day: ["Pon", "Uto", "Sre", "Čet", "Pet", "Sub", "Ned"][index], revenueCents: value * 100_000, orderCount: Math.round(value / 8) }));
 
-function formatMoney(minorUnits: number, currency = "RSD") {
-  return new Intl.NumberFormat("sr-RS", { style: "currency", currency, maximumFractionDigits: 0 }).format(minorUnits / 100);
-}
+const viewTitle: Record<AdminView, string> = { home: "Početna", orders: "Porudžbine", products: "Proizvodi", inventory: "Zalihe", customers: "Kupci", content: "Sadržaj", academy: "Akademija", community: "Zajednica", marketing: "Marketing", analytics: "Analitika", erp: "ERP & CRM" };
+const mockOrders = [
+  { number: "#1048", customer: "Milica Petrović", status: "Za obradu", total: 9180, payment: "Plaćeno", items: 3, date: "Pre 8 min" },
+  { number: "#1047", customer: "Sara Ilić", status: "Spremno", total: 12960, payment: "Pouzećem", items: 4, date: "Danas, 09:18" },
+  { number: "#1046", customer: "Ana Radović", status: "Poslato", total: 6680, payment: "Plaćeno", items: 2, date: "Juče, 16:05" },
+  { number: "#1045", customer: "Jovana Nikolić", status: "Isporučeno", total: 8970, payment: "Plaćeno", items: 3, date: "Juče, 12:27" },
+  { number: "#1044", customer: "Nina Lukić", status: "Isporučeno", total: 2990, payment: "Plaćeno", items: 1, date: "26. avg" },
+];
 
 export default function AdminPage() {
-  const [activeView, setActiveView] = useState<AdminView>("overview");
-  const [orders, setOrders] = useState<OrderSummary[]>([]);
-  const [overview, setOverview] = useState<Overview | null>(null);
-  const [databaseReady, setDatabaseReady] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<AdminView>("home");
+  const [navOpen, setNavOpen] = useState(false);
+  function select(next: AdminView) { setView(next); setNavOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }
 
-  const loadDashboard = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [healthResponse, overviewResponse, ordersResponse] = await Promise.all([
-        fetch("/api/health", { cache: "no-store" }),
-        fetch("/api/admin/overview", { cache: "no-store" }),
-        fetch("/api/orders?limit=20", { cache: "no-store" }),
-      ]);
-      const health = (await healthResponse.json()) as { ok?: boolean };
-      const overviewPayload = (await overviewResponse.json()) as { overview?: Overview };
-      const orderPayload = (await ordersResponse.json()) as { orders?: OrderSummary[] };
-      setDatabaseReady(Boolean(health.ok));
-      setOverview(overviewPayload.overview ?? null);
-      setOrders(orderPayload.orders ?? []);
-    } catch {
-      setDatabaseReady(false);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { const timeout = window.setTimeout(() => void loadDashboard(), 0); return () => window.clearTimeout(timeout); }, [loadDashboard]);
-
-  const demoMode = !overview || overview.orders === 0;
-  const visibleOrders = orders.length ? orders : demoOrders;
-  const trend = overview && overview.trend.length >= 4 ? overview.trend : demoTrend;
-  const revenue = demoMode ? 4_078_000 : overview.revenueCents;
-  const orderCount = demoMode ? 148 : overview.orders;
-  const customers = demoMode ? 96 : overview.customers;
-  const pending = demoMode ? 7 : overview.pending;
-  const maxTrend = Math.max(...trend.map((item) => item.revenueCents), 1);
-  const conversion = 4.8;
-
-  const lowStock = useMemo(() => products.filter((product) => product.stock.quantity <= 20).sort((a, b) => a.stock.quantity - b.stock.quantity), []);
-
-  return (
-    <div className="admin-app">
-      <aside className="admin-sidebar">
-        <Link className="wordmark wordmark--light" href="/">EQUA<span>°</span></Link>
-        <nav aria-label="Admin navigacija">
-          {([
-            ["overview", CircleGauge], ["orders", ShoppingBag], ["catalog", Boxes], ["academy", GraduationCap], ["community", MessagesSquare], ["customers", Users],
-          ] as const).map(([view, Icon]) => <button key={view} className={activeView === view ? "is-active" : ""} onClick={() => setActiveView(view)}><Icon size={17} /><span>{viewLabels[view]}</span>{view === "orders" && <b>{pending}</b>}</button>)}
-        </nav>
-        <div className="admin-sidebar__bottom"><div className="admin-status"><i className={databaseReady ? "is-online" : ""} /><span><strong>{databaseReady ? "Sistem online" : "Demo režim"}</strong>{databaseReady ? "D1 povezan" : "Prikazni podaci"}</span></div><Link href="/" target="_blank">Storefront <ExternalLink size={14} /></Link></div>
+  return <div className="admin-mockup">
+    <header className="admin2-topbar">
+      <button className="admin2-menu" onClick={() => setNavOpen(true)} aria-label="Otvori admin navigaciju"><Menu /></button>
+      <button className="admin2-store-switch"><span>E</span><strong>EQUA Serbia</strong><ChevronDown size={15} /></button>
+      <label className="admin2-global-search"><Search size={16} /><input placeholder="Pretraži porudžbine, proizvode i kupce" aria-label="Pretraži administraciju" /><kbd>⌘ K</kbd></label>
+      <div className="admin2-top-actions"><span className="admin2-demo-pill">Interaktivni mockup</span><button aria-label="Obaveštenja"><Bell size={18} /><i /></button><button className="admin2-user">AT</button></div>
+    </header>
+    <div className="admin2-shell">
+      <aside className={`admin2-sidebar ${navOpen ? "is-open" : ""}`}>
+        <div className="admin2-mobile-head"><strong>EQUA admin</strong><button onClick={() => setNavOpen(false)} aria-label="Zatvori navigaciju"><X /></button></div>
+        <nav aria-label="Admin sekcije">{navGroups.map((group) => <div className="admin2-nav-group" key={group.label}><span>{group.label}</span>{group.items.map((item) => <button className={view === item.id ? "is-active" : ""} onClick={() => select(item.id)} key={item.id}><item.icon size={18} /><strong>{item.label}</strong>{item.badge && <small>{item.badge}</small>}</button>)}</div>)}</nav>
+        <div className="admin2-sidebar-foot"><Link href="/" target="_blank"><Store size={18} /><strong>Online prodavnica</strong><ExternalLink size={14} /></Link><button><Settings size={18} /><strong>Podešavanja</strong></button></div>
       </aside>
-
-      <div className="admin-main">
-        <header className="admin-commandbar">
-          <div><p className="eyebrow">EQUA commerce OS · {demoMode ? "showroom dataset" : "live data"}</p><h1>{viewLabels[activeView]}</h1></div>
-          <div><label className="admin-search"><Search size={16} /><input aria-label="Pretraži admin" placeholder="Pretraži…" /></label><button className="admin-refresh" onClick={() => void loadDashboard()} disabled={loading} aria-label="Osveži podatke"><RefreshCw size={17} /></button><span className="admin-avatar">LJ</span></div>
-        </header>
-
-        {activeView === "overview" && <>
-          <section className="admin-kpis">
-            <article><span>Prihod · 7 dana</span><strong>{formatMoney(revenue)}</strong><small className="is-up"><ArrowUpRight /> 18.4%</small></article>
-            <article><span>Porudžbine</span><strong>{orderCount}</strong><small className="is-up"><ArrowUpRight /> 12.1%</small></article>
-            <article><span>Konverzija</span><strong>{conversion}%</strong><small className="is-up"><ArrowUpRight /> 0.7 pp</small></article>
-            <article><span>Prosečna korpa</span><strong>{formatMoney(Math.round(revenue / orderCount))}</strong><small><ArrowDownRight /> 2.3%</small></article>
-          </section>
-
-          <section className="admin-dashboard-grid">
-            <article className="admin-module admin-module--chart">
-              <div className="admin-module__head"><div><span>Prodaja</span><h2>Ritam prihoda</h2></div><select aria-label="Period grafikona"><option>Poslednjih 7 dana</option></select></div>
-              <div className="revenue-chart" aria-label="Grafikon prihoda po danima">{trend.map((item) => <div key={item.day}><span style={{ height: `${Math.max(12, item.revenueCents / maxTrend * 100)}%` }}><i>{formatMoney(item.revenueCents)}</i></span><small>{item.day.length > 3 ? new Date(`${item.day}T00:00:00`).toLocaleDateString("sr-RS", { weekday: "short" }) : item.day}</small></div>)}</div>
-            </article>
-            <article className="admin-module admin-module--pulse">
-              <div className="admin-module__head"><div><span>Live signal</span><h2>Danas</h2></div><Zap size={20} /></div>
-              <div className="pulse-number"><strong>27</strong><span>aktivnih poseta</span></div>
-              <div className="pulse-map"><i /><i /><i /><i /><i /></div>
-              <div className="admin-mini-row"><span>Dodato u korpu</span><strong>18</strong></div><div className="admin-mini-row"><span>Pokrenut skin check</span><strong>31</strong></div><div className="admin-mini-row"><span>Završena kupovina</span><strong>7</strong></div>
-            </article>
-          </section>
-
-          <section className="admin-dashboard-grid admin-dashboard-grid--lower">
-            <article className="admin-module"><div className="admin-module__head"><div><span>Funnel</span><h2>Put do kupovine</h2></div><BarChart3 size={20} /></div><div className="conversion-funnel"><div><span>Posete</span><b style={{ width: "100%" }} /><strong>2.840</strong></div><div><span>PDP pregled</span><b style={{ width: "68%" }} /><strong>1.932</strong></div><div><span>Dodato u korpu</span><b style={{ width: "24%" }} /><strong>681</strong></div><div><span>Kupovina</span><b style={{ width: "8%" }} /><strong>136</strong></div></div></article>
-            <article className="admin-module"><div className="admin-module__head"><div><span>Zalihe</span><h2>Traži pažnju</h2></div><button onClick={() => setActiveView("catalog")}>Svi proizvodi <ChevronRight size={15} /></button></div><div className="stock-list">{lowStock.slice(0, 4).map((product) => <div key={product.id}><span className="stock-thumb" style={{ background: product.stock.quantity === 0 ? "var(--peach)" : "var(--lilac)" }} /><p><strong>{product.name}</strong><small>{brandById[product.brandId].name}</small></p><b className={product.stock.quantity === 0 ? "is-out" : ""}>{product.stock.quantity} kom.</b></div>)}</div></article>
-          </section>
-        </>}
-
-        {activeView === "orders" && <section className="admin-module admin-orders-module"><div className="admin-module__head"><div><span>Operativa</span><h2>Sve porudžbine</h2></div><div className="admin-table-filters"><button className="is-active">Sve</button><button>Čekaju</button><button>Poslate</button></div></div><OrderTable orders={visibleOrders} /></section>}
-
-        {activeView === "catalog" && <section className="admin-module admin-orders-module"><div className="admin-module__head"><div><span>{products.length} SKU</span><h2>Katalog i zalihe</h2></div><Link className="button button--dark" href="/shop">Storefront <ArrowUpRight size={15} /></Link></div><div className="admin-table-wrap"><table className="admin-data-table"><thead><tr><th>Proizvod</th><th>Brend</th><th>Kategorija</th><th>Cena</th><th>Zaliha</th><th>Status</th></tr></thead><tbody>{products.map((product) => <tr key={product.id}><td><div className="admin-product-cell"><span style={{ background: product.stock.quantity <= 10 ? "var(--peach)" : "var(--acid-soft)" }} /><strong>{product.name}</strong></div></td><td>{brandById[product.brandId].name}</td><td>{product.category.replaceAll("-", " ")}</td><td>{formatMoney(product.priceRsd * 100)}</td><td>{product.stock.quantity}</td><td><span className={`status-pill status-pill--${product.stock.status === "nema-na-stanju" ? "cancelled" : product.stock.status === "malo-na-stanju" ? "pending" : "complete"}`}>{product.stock.status.replaceAll("-", " ")}</span></td></tr>)}</tbody></table></div></section>}
-
-        {activeView === "academy" && <section className="admin-module admin-orders-module"><div className="admin-module__head"><div><span>Learning commerce</span><h2>Programi i lekcije</h2></div><Link className="button button--dark" href="/academy">Otvori Akademiju <ArrowUpRight size={15} /></Link></div><div className="admin-course-list">{courses.map((course) => <article key={course.id}><span style={{ background: course.accent }}><GraduationCap /></span><div><small>{course.eyebrow}</small><strong>{course.title}</strong><p>{courseLessonCount(course)} lekcija · {courseDuration(course)} min · {course.priceRsd === 0 ? "besplatno" : formatMoney(course.priceRsd * 100)}</p></div><div><strong>{course.featured ? "Istaknuto" : "Objavljeno"}</strong><small>{course.modules.length} modula</small></div><button aria-label={`Uredi ${course.title}`}><ChevronRight /></button></article>)}</div></section>}
-
-        {activeView === "community" && <section className="admin-module admin-orders-module"><div className="admin-module__head"><div><span>Moderation queue · 0 prijava</span><h2>Diskusije i community health</h2></div><Link className="button button--dark" href="/community">Otvori Club <ArrowUpRight size={15} /></Link></div><div className="admin-community-kpis"><article><span>Aktivni članovi</span><strong>1.284</strong><small>showroom metrika</small></article><article><span>Odgovor eksperta</span><strong>2h 14m</strong><small>prosečno vreme</small></article><article><span>Prijavljeni sadržaj</span><strong>0.6%</strong><small>poslednjih 30 dana</small></article></div><div className="admin-table-wrap"><table className="admin-data-table"><thead><tr><th>Tema</th><th>Autor</th><th>Prostor</th><th>Odgovori</th><th>Status</th></tr></thead><tbody>{communitySeedPosts.map((post) => <tr key={post.id}><td><strong>{post.title}</strong></td><td>{post.authorName}</td><td>{post.spaceId}</td><td>{post.replies}</td><td><span className="status-pill status-pill--complete">objavljeno</span></td></tr>)}</tbody></table></div></section>}
-
-        {activeView === "customers" && <section className="admin-customer-view"><div className="admin-customer-hero"><span><Sparkles /></span><div><p className="eyebrow">Customer intelligence</p><h2>{customers} profila kože u razvoju.</h2><p>Skin check pretvara anonimnu kupovinu u kontekst: cilj, osetljivost, iskustvo sa aktivima i realan broj koraka.</p></div></div><div className="admin-customer-grid"><article><span>Najčešći cilj</span><strong>Hidratacija</strong><small>31% skin check rezultata</small></article><article><span>Najčešća rutina</span><strong>Mirna barijera</strong><small>24 sačuvana plana</small></article><article><span>Repeat rate</span><strong>28.6%</strong><small>+4.2% u odnosu na jul</small></article></div></section>}
+      {navOpen && <button className="admin2-nav-backdrop" onClick={() => setNavOpen(false)} aria-label="Zatvori admin navigaciju" />}
+      <div className="admin2-main">
+        <header className="admin2-page-head"><div><p>EQUA / {viewTitle[view]}</p><h1>{viewTitle[view]}</h1></div><button className="admin2-primary">{view === "orders" ? "Kreiraj porudžbinu" : view === "products" ? "Dodaj proizvod" : view === "content" ? "Novi vodič" : "Prilagodi prikaz"}</button></header>
+        {view === "home" && <HomeView onNavigate={select} />}{view === "orders" && <OrdersView />}{view === "products" && <ProductsView />}{view === "inventory" && <InventoryView onNavigate={select} />}{view === "customers" && <CustomersView />}{view === "content" && <ContentView />}{view === "academy" && <AcademyView />}{view === "community" && <CommunityView />}{view === "marketing" && <MarketingView />}{view === "analytics" && <AnalyticsView />}{view === "erp" && <ErpView />}
       </div>
     </div>
-  );
+  </div>;
 }
 
-function OrderTable({ orders }: { orders: OrderSummary[] }) {
-  return <div className="admin-table-wrap"><table className="admin-data-table"><thead><tr><th>Porudžbina</th><th>Datum</th><th>Status</th><th>Stavke</th><th>Plaćanje</th><th>Ukupno</th><th /></tr></thead><tbody>{orders.map((order) => <tr key={order.id}><td><strong>{order.orderNumber}</strong></td><td>{new Date(`${order.createdAt.replace(" ", "T")}Z`).toLocaleDateString("sr-RS", { day: "2-digit", month: "short" })}</td><td><span className={`status-pill status-pill--${order.status}`}>{statusLabels[order.status] ?? order.status}</span></td><td>{order.itemCount}</td><td>{order.paymentMethod === "cash_on_delivery" ? "Pouzećem" : "Kartica"}</td><td><strong>{formatMoney(order.totalCents, order.currency)}</strong></td><td><button aria-label={`Otvori ${order.orderNumber}`}><ChevronRight size={16} /></button></td></tr>)}</tbody></table></div>;
-}
+function HomeView({ onNavigate }: { onNavigate: (view: AdminView) => void }) { return <>
+  <section className="admin2-metrics"><Metric label="Ukupna prodaja" value="4.078.000 RSD" delta="+18,4%" /><Metric label="Porudžbine" value="148" delta="+12,1%" /><Metric label="Konverzija" value="4,8%" delta="+0,7 pp" /><Metric label="Prosečna korpa" value="8.940 RSD" delta="−2,3%" down /></section>
+  <section className="admin2-home-grid"><article className="admin2-card admin2-attention"><CardHead icon={Sparkles} eyebrow="Sledeće akcije" title="Danas traži pažnju" /><ActionRow tone="lime" icon={PackageCheck} title="7 porudžbina čeka obradu" meta="Najstarija pre 42 minuta" onClick={() => onNavigate("orders")} /><ActionRow tone="peach" icon={Boxes} title="4 proizvoda ima nisku zalihu" meta="1 proizvod trenutno nije dostupan" onClick={() => onNavigate("inventory")} /><ActionRow tone="lilac" icon={MessageSquare} title="3 nova community pitanja" meta="Prosečan odgovor eksperta 2h 14m" onClick={() => onNavigate("community")} /></article><article className="admin2-card admin2-sales-card"><CardHead icon={Activity} eyebrow="Poslednjih 7 dana" title="Prodaja kroz vreme" /><div className="admin2-spark-chart">{[42,58,49,71,63,91,74,105,88,122,96,138].map((height, index) => <i style={{ height }} key={index} />)}</div><div className="admin2-sales-total"><span>Neto prodaja</span><strong>4.078.000 RSD</strong></div></article></section>
+  <section className="admin2-card admin2-list-card"><CardHead icon={ShoppingBag} eyebrow="Operativa" title="Nedavne porudžbine" action={<button onClick={() => onNavigate("orders")}>Prikaži sve <ArrowRight /></button>} /><OrderTable rows={mockOrders.slice(0, 4)} /></section>
+</>; }
+
+function OrdersView() { return <section className="admin2-card admin2-list-card"><ListToolbar placeholder="Pretraži porudžbine" filters={["Sve", "Neispunjene", "Otvorene", "Zatvorene"]} /><OrderTable rows={mockOrders} /></section>; }
+function ProductsView() { return <section className="admin2-card admin2-list-card"><ListToolbar placeholder="Pretraži proizvode" filters={["Sve", "Aktivno", "Draft", "Arhivirano"]} /><div className="admin2-table-wrap"><table className="admin2-table admin2-product-table"><thead><tr><th>Proizvod</th><th>Status</th><th>Zaliha</th><th>Kategorija</th><th>Cena</th></tr></thead><tbody>{products.slice(0, 10).map((product) => <tr key={product.id}><td><div className="admin2-product"><img src={productPhotoFor(product)} alt="" /><span><strong>{product.name}</strong><small>{brandById[product.brandId].name} · {product.size}</small></span></div></td><td><Status tone="green">Aktivno</Status></td><td>{product.stock.quantity} na stanju</td><td>{product.category.replaceAll("-", " ")}</td><td>{formatRsd(product.priceRsd)}</td></tr>)}</tbody></table></div></section>; }
+function InventoryView({ onNavigate }: { onNavigate: (view: AdminView) => void }) { const low = useMemo(() => products.filter((product) => product.stock.quantity <= 20).sort((a, b) => a.stock.quantity - b.stock.quantity), []); return <><section className="admin2-callout"><div><Boxes /><span><strong>ERP upravlja glavnim stanjem zaliha.</strong>Finalna verzija šalje validirane korekcije kroz integration hub.</span></div><button onClick={() => onNavigate("erp")}>Otvori ERP sync <ArrowRight /></button></section><section className="admin2-card admin2-list-card"><ListToolbar placeholder="Pretraži SKU ili proizvod" filters={["Sve lokacije", "Niska zaliha", "Nema na stanju"]} /><div className="admin2-table-wrap"><table className="admin2-table"><thead><tr><th>Proizvod</th><th>SKU</th><th>Dostupno</th><th>Rezervisano</th><th>Dolazi</th><th>Status</th></tr></thead><tbody>{low.map((product, index) => <tr key={product.id}><td><strong>{product.name}</strong></td><td>EQ-{product.id.slice(0, 6).toUpperCase()}</td><td>{product.stock.quantity}</td><td>{index + 1}</td><td>{index % 2 ? 24 : "—"}</td><td><Status tone={product.stock.quantity === 0 ? "red" : "yellow"}>{product.stock.quantity === 0 ? "Nema" : "Nisko"}</Status></td></tr>)}</tbody></table></div></section></>; }
+function CustomersView() { const customers = [{ name: "Milica Petrović", orders: 6, spent: 42890, blueprint: "Mirna barijera" },{ name: "Sara Ilić", orders: 4, spent: 28670, blueprint: "Age support" },{ name: "Ana Radović", orders: 3, spent: 21420, blueprint: "Duboka hidratacija" },{ name: "Jovana Nikolić", orders: 2, spent: 15310, blueprint: "Glow bez iritacije" }]; return <><section className="admin2-metrics admin2-metrics--three"><Metric label="Ukupno kupaca" value="1.284" delta="+96 ovog meseca" /><Metric label="Povratni kupci" value="28,6%" delta="+4,2 pp" /><Metric label="Članovi sa Blueprintom" value="742" delta="58% baze" /></section><section className="admin2-card admin2-list-card"><ListToolbar placeholder="Pretraži kupce" filters={["Svi", "VIP", "Novi", "Bez porudžbine"]} /><div className="admin2-table-wrap"><table className="admin2-table"><thead><tr><th>Kupac</th><th>Skin Blueprint</th><th>Porudžbine</th><th>Ukupna potrošnja</th></tr></thead><tbody>{customers.map((customer) => <tr key={customer.name}><td><strong>{customer.name}</strong></td><td>{customer.blueprint}</td><td>{customer.orders}</td><td>{formatRsd(customer.spent)}</td></tr>)}</tbody></table></div></section></>; }
+function ContentView() { return <section className="admin2-card admin2-list-card"><CardHead icon={BookOpen} eyebrow="Content hub" title={`${articles.length} vodiča`} /><div className="admin2-content-grid">{articles.slice(0, 6).map((article) => <article key={article.id}><img src={article.image} alt="" /><div><Status tone="green">Objavljeno</Status><h2>{article.title}</h2><p>{article.category.replaceAll("-", " ")} · {article.readingMinutes} min</p></div><button aria-label={`Otvori ${article.title}`}><ChevronRight /></button></article>)}</div></section>; }
+function AcademyView() { return <section className="admin2-card admin2-list-card"><CardHead icon={GraduationCap} eyebrow="Learning commerce" title="Programi i lekcije" /><div className="admin2-course-grid">{courses.map((course) => <article key={course.id}><img src={course.image} alt="" /><div><Status tone="green">Objavljeno</Status><h2>{course.title}</h2><p>{courseLessonCount(course)} lekcija · {courseDuration(course)} min</p><span>{course.priceRsd === 0 ? "Besplatno" : formatRsd(course.priceRsd)}</span></div><button>Uredi <ChevronRight /></button></article>)}</div></section>; }
+function CommunityView() { return <><section className="admin2-metrics admin2-metrics--three"><Metric label="Aktivni članovi" value="1.284" delta="+8,4%" /><Metric label="Prijavljeni sadržaj" value="0,6%" delta="niska stopa" /><Metric label="Odgovor eksperta" value="2h 14m" delta="prosek" /></section><section className="admin2-card admin2-list-card"><CardHead icon={MessageSquare} eyebrow="Moderacija" title="Poslednje teme" /><div className="admin2-table-wrap"><table className="admin2-table"><thead><tr><th>Tema</th><th>Autor</th><th>Prostor</th><th>Odgovori</th><th>Status</th></tr></thead><tbody>{communitySeedPosts.map((post) => <tr key={post.id}><td><strong>{post.title}</strong></td><td>{post.authorName}</td><td>{post.spaceId}</td><td>{post.replies}</td><td><Status tone="green">Objavljeno</Status></td></tr>)}</tbody></table></div></section></>; }
+function MarketingView() { const flows = [["Welcome serija", "Registracija ili newsletter", "Aktivan", "38,4% open rate"],["Napuštena korpa", "Korpa bez kupovine · 2h", "Aktivan", "12 vraćenih korpi"],["Post-purchase", "3 dana posle isporuke", "Aktivan", "31 novih recenzija"],["Win-back", "Bez kupovine · 75 dana", "Draft", "Čeka CRM segment"]]; return <><section className="admin2-callout admin2-callout--lilac"><div><HeartHandshake /><span><strong>CRM automations mockup</strong>Kupovina, Skin Blueprint, kurs i loyalty događaji ulaze u isti profil kupca.</span></div><button>Nova automatizacija</button></section><section className="admin2-card admin2-list-card"><CardHead icon={Megaphone} eyebrow="Lifecycle" title="Automatizovani flow-ovi" /><div className="admin2-automation-grid">{flows.map(([name, trigger, status, result]) => <article key={name}><span><Activity /></span><h2>{name}</h2><p>{trigger}</p><Status tone={status === "Aktivan" ? "green" : "gray"}>{status}</Status><small>{result}</small></article>)}</div></section></>; }
+function AnalyticsView() { return <><section className="admin2-metrics"><Metric label="Online sesije" value="2.840" delta="+16,1%" /><Metric label="Završen Skin Check" value="384" delta="13,5% sesija" /><Metric label="Academy activation" value="61%" delta="članova" /><Metric label="Repeat rate" value="28,6%" delta="+4,2 pp" /></section><section className="admin2-card admin2-analytics"><CardHead icon={BarChart3} eyebrow="Problem → sadržaj → proizvod" title="Konverzioni put" /><div className="admin2-funnel">{[["Posete","100%","2.840"],["Skin Check","76%","1.114"],["Preporuka","52%","842"],["Korpa","29%","381"],["Kupovina","13%","148"]].map(([label,width,value]) => <div key={label}><span>{label}</span><i style={{ width }} /><strong>{value}</strong></div>)}</div></section></>; }
+function ErpView() { const syncRows = [["Porudžbina #1048", "Webshop → ERP", "Uspešno", "Pre 3 min"],["Zalihe · 24 SKU", "ERP → Webshop", "Uspešno", "Pre 7 min"],["Cenovnik RS-RSD", "ERP → Webshop", "Uspešno", "Pre 18 min"],["Kupac · Milica Petrović", "Webshop → CRM", "Uspešno", "Pre 22 min"],["Nabavka PO-228", "ERP → Webshop", "Čeka", "Pre 31 min"]]; return <><section className="admin2-erp-hero"><div><span className="admin2-erp-icon"><PlugZap /></span><p className="eyebrow">ERP Core · sandbox</p><h2>Svi operativni podaci, jedan tok.</h2><p>Mockup integracionog centra za narudžbine, cene, zalihe, nabavku, računovodstvo i CRM profile.</p><div className="admin2-erp-status"><i /> Poslednja uspešna sinhronizacija pre 3 min</div></div><button>Pokreni ručni sync</button></section><section className="admin2-sync-flow"><div><Store /><span><strong>EQUA webshop</strong>Porudžbine · članovi · kviz</span></div><i><ArrowRight /></i><div className="is-hub"><PlugZap /><span><strong>Integration hub</strong>Validacija · retry · logovi</span></div><i><ArrowRight /></i><div><CircleGauge /><span><strong>ERP + CRM</strong>Zalihe · cene · kupci</span></div></section><section className="admin2-metrics admin2-metrics--three"><Metric label="Sinhronizacija danas" value="1.842" delta="99,8% uspešno" /><Metric label="Red za ponovni pokušaj" value="3" delta="automatski retry" /><Metric label="Prosečno kašnjenje" value="42 sec" delta="ispod cilja" /></section><section className="admin2-card admin2-list-card"><CardHead icon={ClipboardList} eyebrow="Integration log" title="Poslednje razmene" action={<button>Dokumentacija <ExternalLink /></button>} /><div className="admin2-table-wrap"><table className="admin2-table"><thead><tr><th>Zapis</th><th>Tok</th><th>Status</th><th>Vreme</th></tr></thead><tbody>{syncRows.map(([record, direction, status, time]) => <tr key={record}><td><strong>{record}</strong></td><td>{direction}</td><td><Status tone={status === "Uspešno" ? "green" : "yellow"}>{status}</Status></td><td>{time}</td></tr>)}</tbody></table></div></section></>; }
+
+function Metric({ label, value, delta, down = false }: { label: string; value: string; delta: string; down?: boolean }) { return <article><span>{label}</span><strong>{value}</strong><small className={down ? "is-down" : ""}>{delta}</small></article>; }
+function Status({ children, tone }: { children: React.ReactNode; tone: "green" | "yellow" | "red" | "gray" }) { return <span className={`admin2-status admin2-status--${tone}`}>{children}</span>; }
+function CardHead({ icon: Icon, eyebrow, title, action }: { icon: ComponentType<{ size?: number }>; eyebrow: string; title: string; action?: React.ReactNode }) { return <div className="admin2-card-head"><span><Icon size={18} /></span><div><small>{eyebrow}</small><h2>{title}</h2></div>{action && <div className="admin2-card-action">{action}</div>}</div>; }
+function ActionRow({ icon: Icon, title, meta, tone, onClick }: { icon: ComponentType<{ size?: number }>; title: string; meta: string; tone: string; onClick: () => void }) { return <button className="admin2-action-row" onClick={onClick}><span className={`is-${tone}`}><Icon /></span><div><strong>{title}</strong><small>{meta}</small></div><ChevronRight /></button>; }
+function ListToolbar({ placeholder, filters }: { placeholder: string; filters: string[] }) { return <div className="admin2-list-toolbar"><label><Search /><input placeholder={placeholder} /></label><div>{filters.map((filter, index) => <button className={index === 0 ? "is-active" : ""} key={filter}>{filter}</button>)}</div><button className="admin2-filter-button"><Layers3 /> Filteri</button></div>; }
+function OrderTable({ rows }: { rows: typeof mockOrders }) { return <div className="admin2-table-wrap"><table className="admin2-table"><thead><tr><th>Porudžbina</th><th>Datum</th><th>Kupac</th><th>Plaćanje</th><th>Isporuka</th><th>Stavke</th><th>Ukupno</th></tr></thead><tbody>{rows.map((order) => <tr key={order.number}><td><strong>{order.number}</strong></td><td>{order.date}</td><td>{order.customer}</td><td><Status tone="green">{order.payment}</Status></td><td><Status tone={order.status === "Za obradu" ? "yellow" : order.status === "Poslato" ? "gray" : "green"}>{order.status}</Status></td><td>{order.items}</td><td><strong>{formatRsd(order.total)}</strong></td></tr>)}</tbody></table></div>; }

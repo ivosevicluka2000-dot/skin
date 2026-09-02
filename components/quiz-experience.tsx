@@ -1,14 +1,17 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element -- checked-in Academy photography is used in the personalized result. */
+
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Check, CheckCircle2, RefreshCw, ShieldCheck, ShoppingBag, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, CheckCircle2, LockKeyhole, RefreshCw, ShieldCheck, ShoppingBag, Sparkles } from "lucide-react";
 import { products, productById, quizQuestions, recommendRoutine, routines } from "@/lib/data/catalog";
 import { courses } from "@/lib/data";
-import { ProductArt } from "./product-art";
+import { ProductPhoto } from "./product-photo";
 import { useCommerce } from "./commerce-store";
-import { productColor, productShape, toCommerceProduct } from "@/lib/ui";
+import { toCommerceProduct } from "@/lib/ui";
 import { useLearning } from "./learning-store";
+import { useMember } from "./member-store";
 
 export function QuizExperience() {
   const [started, setStarted] = useState(false);
@@ -18,6 +21,7 @@ export function QuizExperience() {
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const { addToRoutine, addToCart } = useCommerce();
   const { saveBlueprint } = useLearning();
+  const { member } = useMember();
   const question = quizQuestions[step];
   const selected = answers[step];
   const recommendation = useMemo(() => recommendRoutine(answers), [answers]);
@@ -102,11 +106,11 @@ export function QuizExperience() {
             <div className="quiz-result__header"><div><p className="eyebrow">Tvoj Skin Blueprint</p><h1>{routine.name}</h1><p>{routine.description}</p></div><div className="quiz-result__score"><div><strong>{Math.min(98, 82 + Math.max(...Object.values(recommendation.scores)))}</strong><span>% signal fit</span></div></div></div>
             <div className="skin-fingerprint"><div><span>Glavni signal</span><strong>{primaryGoalAnswer?.label ?? "Balans i stabilnost"}</strong></div><div><span>Tolerancija</span><strong>{answers.includes("sensitivity-high") ? "Niska · uvodi polako" : "Stabilna"}</strong></div><div><span>Ritam</span><strong>{answers.includes("length-three") ? "Minimalan · 3 koraka" : "Strukturiran · 4 koraka"}</strong></div></div>
             <div className="quiz-result__routine">
-              {recommendedItems.map((item, index) => { const product = products.find((candidate) => candidate.id === item.productId)!; return <article key={item.productId}><span>0{index + 1} · {item.note}</span><ProductArt color={productColor(product)} label={product.name} shape={productShape(product)} /><h3>{product.name}</h3><Link className="text-link" href={`/product/${product.slug}`}>Detalji <ArrowRight size={13} /></Link></article>; })}
+              {recommendedItems.map((item, index) => { const product = products.find((candidate) => candidate.id === item.productId)!; return <article key={item.productId}><span>0{index + 1} · {item.note}</span><div className="quiz-product-photo"><ProductPhoto product={product} /></div><h3>{product.name}</h3><Link className="text-link" href={`/product/${product.slug}`}>Detalji <ArrowRight size={13} /></Link></article>; })}
             </div>
             <div className="quiz-plan"><div><span>01</span><p><strong>Prva nedelja</strong>Stabilizuj osnovu i uvedi samo hidrataciju + SPF.</p></div><div><span>02</span><p><strong>Druga nedelja</strong>Dodaj jedan ciljani serum svako drugo veče.</p></div><div><span>03</span><p><strong>Nedelje 3–4</strong>Prati signal i menjaj samo jednu stvar.</p></div></div>
             {recommendation.safetyMessages.map((message) => <div className="concern-tip" key={message}>{message}</div>)}
-            <div className="quiz-course-match"><div><p className="eyebrow">Sledeći pametan korak</p><h2>{recommendedCourse.title}</h2><p>{recommendedCourse.description}</p></div><Link className="button button--ghost" href={`/academy/${recommendedCourse.slug}`}>Otvori program <ArrowRight size={15} /></Link></div>
+            <div className="quiz-course-match"><div className="quiz-course-match__image"><img src={recommendedCourse.image} alt="" width={900} height={600} /></div><div><p className="eyebrow">Kurs preporučen uz ovaj rezultat</p><h2>{recommendedCourse.title}</h2><p>{recommendedCourse.description}</p><small>{recommendedCourse.priceRsd === 0 ? "Uključen besplatno" : `${recommendedCourse.priceRsd.toLocaleString("sr-RS")} RSD`} · {recommendedCourse.level}</small></div><Link className="button button--ghost" href={member ? `/academy/${recommendedCourse.slug}` : `/join?returnTo=${encodeURIComponent(`/academy/${recommendedCourse.slug}`)}`}>{member ? "Otvori program" : <><LockKeyhole size={15} /> Registruj se i otključaj</>} <ArrowRight size={15} /></Link></div>
             {saveState === "error" && <p className="quiz-save-error" role="alert">Nije sačuvano. Proveri vezu i pokušaj ponovo.</p>}
             <div className="quiz-controls"><button className="button button--ghost" onClick={reset}><RefreshCw size={16} /> Ponovi</button><button className="button button--ghost" onClick={addRoutineToCart}><ShoppingBag size={16} /> Dodaj sve u korpu</button><button className="button button--dark" onClick={saveRoutine} disabled={saveState === "saving" || saveState === "saved"}><Sparkles size={16} /> {saveState === "idle" || saveState === "error" ? "Sačuvaj Blueprint" : saveState === "saving" ? "Čuvamo…" : "Sačuvano"}</button></div>
           </div>

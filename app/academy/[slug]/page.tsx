@@ -7,6 +7,7 @@ import { ArrowLeft, CheckCircle2, Clock3, LockKeyhole, Play, ShoppingBag, UserRo
 import { CourseEnrollButton } from "@/components/course-enroll-button";
 import { CourseProgress, LessonStatus } from "@/components/course-progress";
 import { courseBySlug, courseDuration, courseLessonCount, courses } from "@/lib/data";
+import { MemberGate } from "@/components/member-gate";
 
 export function generateStaticParams() { return courses.map((course) => ({ slug: course.slug })); }
 
@@ -20,6 +21,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
   const firstLesson = lessons[0];
   const price = course.priceRsd === 0 ? "Besplatno" : new Intl.NumberFormat("sr-RS", { style: "currency", currency: "RSD", maximumFractionDigits: 0 }).format(course.priceRsd);
   return (
+    <MemberGate returnTo={`/academy/${course.slug}`} area="academy">
     <div className="course-page">
       <nav className="breadcrumbs" aria-label="Putanja"><Link href="/academy"><ArrowLeft size={13} /> Akademija</Link><span>/</span><span>{course.title}</span></nav>
       <section className="course-hero" style={{ "--course-accent": course.accent } as React.CSSProperties}>
@@ -33,5 +35,6 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
 
       <section className="course-commerce-note"><ShoppingBag /><div><p className="eyebrow">Proizvodi iz lekcija</p><h2>Svaka preporuka dolazi sa razlogom.</h2><p>Uz proizvod vidiš gde pripada, kome odgovara i alternativu. Dodaj pojedinačno ili složi celu rutinu jednim klikom.</p></div><Link className="button button--ghost" href={`/academy/${course.slug}/${firstLesson.slug}`}>Otvori demo lekciju</Link></section>
     </div>
+    </MemberGate>
   );
 }

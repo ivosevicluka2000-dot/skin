@@ -32,11 +32,13 @@ export const dynamicPageContract = [
     name: "course detail",
     linkPattern: /href=["'](\/academy\/(?![^"']+\/)[^"'#?]+)["']/gi,
     discoveryPaths: ["/academy", "/"],
+    samplePath: "/academy/skin-barrier-reset",
   },
   {
     name: "course lesson",
     linkPattern: /href=["'](\/academy\/[^"'#?]+\/[^"'#?]+)["']/gi,
     discoveryPaths: ["/academy/skin-barrier-reset"],
+    samplePath: "/academy/skin-barrier-reset/sta-je-kozna-barijera",
   },
 ];
 

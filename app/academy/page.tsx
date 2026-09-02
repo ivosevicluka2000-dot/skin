@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, BookOpen, Clock3, GraduationCap, Sparkles } from "lucide-react";
 import { CourseProgress } from "@/components/course-progress";
 import { courseDuration, courseLessonCount, courses } from "@/lib/data";
+import { MemberGate } from "@/components/member-gate";
 
 export const metadata: Metadata = { title: "EQUA Akademija", description: "Video programi koji znanje pretvaraju u rutinu koju možeš da pratiš." };
 
@@ -11,6 +12,7 @@ function priceLabel(price: number) { return price === 0 ? "Besplatno" : new Intl
 export default function AcademyPage() {
   const featured = courses[0];
   return (
+    <MemberGate returnTo="/academy" area="academy">
     <div className="academy-page">
       <section className="academy-hero">
         <div className="academy-hero__copy">
@@ -46,5 +48,6 @@ export default function AcademyPage() {
 
       <section className="academy-loop"><div><p className="eyebrow">Learning commerce</p><h2>Nije „pogledaj video i snađi se“.</h2></div><div className="academy-loop__steps">{["Pogledaj lekciju", "Razumi zašto", "Složi rutinu", "Prati napredak"].map((step, index) => <div key={step}><span>0{index + 1}</span><strong>{step}</strong></div>)}</div></section>
     </div>
+    </MemberGate>
   );
 }
